@@ -31,7 +31,7 @@ Current implementation is considered experimental, but from initial tests it wor
 * Any Advanced Flow Control
 * Not for production use, ever
 
-## Installation
+## How to run?
 
 * Add "devopsifyme-local.servicebus.windows.net 127.0.0.1" to /etc/hosts
 * Add /docker/testca/cacert.cer to Trusted Root on your local machine
