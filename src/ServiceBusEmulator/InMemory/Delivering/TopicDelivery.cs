@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Amqp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Amqp;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     internal sealed class TopicDelivery : ITopicDelivery, IDisposable
     {
@@ -27,17 +27,23 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
         public async Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(typeof(TopicDelivery).Name);
+            }
+
             IEnumerable<Task<bool>> subscriptionTasks = Subscriptions
                 .Select(s => s.WaitAsync(timeout, cancellationToken));
-            var results = await Task.WhenAll(subscriptionTasks).ConfigureAwait(false);
+            bool[] results = await Task.WhenAll(subscriptionTasks).ConfigureAwait(false);
             return results.All(r => r);
         }
 
         public void Dispose()
         {
             if (_disposed)
+            {
                 return;
+            }
+
             _disposed = true;
             foreach (IDelivery subscription in Subscriptions)
             {

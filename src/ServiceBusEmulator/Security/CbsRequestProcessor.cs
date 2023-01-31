@@ -1,10 +1,11 @@
-﻿using System;
-using Amqp;
+﻿using Amqp;
 using Amqp.Framing;
 using Amqp.Listener;
 using Microsoft.Extensions.Logging;
+using ServiceBusEmulator.Abstractions.Security;
+using System;
 
-namespace Xim.Simulators.ServiceBus.Security
+namespace ServiceBusEmulator.Security
 {
     public class CbsRequestProcessor : IRequestProcessor
     {
@@ -26,10 +27,8 @@ namespace Xim.Simulators.ServiceBus.Security
             if (ValidateCbsRequest(requestContext))
             {
                 _messageContext.Authorize(requestContext.Link.Session.Connection);
-                using (Message message = GetResponseMessage(200, requestContext))
-                {
-                    requestContext.Complete(message);
-                }
+                using Message message = GetResponseMessage(200, requestContext);
+                requestContext.Complete(message);
             }
             else
             {
@@ -44,7 +43,7 @@ namespace Xim.Simulators.ServiceBus.Security
 
         private bool ValidateCbsRequest(RequestContext requestContext)
         {
-            var token = (string)requestContext.Message.Body;
+            string token = (string)requestContext.Message.Body;
             try
             {
                 _tokenValidator.Validate(token);
@@ -59,7 +58,8 @@ namespace Xim.Simulators.ServiceBus.Security
         }
 
         private static Message GetResponseMessage(int responseCode, RequestContext requestContext)
-            => new Message
+        {
+            return new Message
             {
                 Properties = new Properties
                 {
@@ -70,5 +70,6 @@ namespace Xim.Simulators.ServiceBus.Security
                     ["status-code"] = responseCode
                 }
             };
+        }
     }
 }

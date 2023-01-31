@@ -1,13 +1,9 @@
 ﻿using Amqp;
 using Amqp.Types;
-using System;
-using System.Linq;
 using RabbitMQ.Client;
-using System.Collections.Generic;
-using Xim.Simulators.ServiceBus.Azure;
-using System.Threading.Channels;
+using ServiceBusEmulator.Abstractions.Azure;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Management
+namespace ServiceBusEmulator.RabbitMq.Commands
 {
     public class PeekMessageCommand : IManagementCommand
     {
@@ -22,18 +18,18 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Management
 
         public (Message, AmqpResponseStatusCode) Handle(Message request, IModel channel, string address)
         {
-            
-            (_, var queueName, _) = _utilities.GetExachangeAndQueue(address);
 
-            var requestBody = (Map)request.Body;
+            (_, string? queueName, _) = _utilities.GetExachangeAndQueue(address);
+
+            Map requestBody = (Map)request.Body;
             int fromSequence = Convert.ToInt32(requestBody[ManagementConstants.Properties.FromSequenceNumber]);
             int messageCount = Convert.ToInt32(requestBody[ManagementConstants.Properties.MessageCount]);
 
-            var messages = new List();
-            var rabbitMessages = PeekMessagesFromRabbit(channel, queueName, fromSequence, messageCount);
+            List messages = new();
+            IEnumerable<Map> rabbitMessages = PeekMessagesFromRabbit(channel, queueName, fromSequence, messageCount);
             messages.AddRange(rabbitMessages);
 
-            var responseBody = new Map
+            Map responseBody = new()
             {
                 [ManagementConstants.Properties.Messages] = messages
             };
@@ -43,7 +39,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Management
 
         private IEnumerable<Map> PeekMessagesFromRabbit(IModel channel, string queueName, int fromSequence, int messageCount)
         {
-            var deliveryTags = new List<ulong>();
+            List<ulong> deliveryTags = new();
             try
             {
                 BasicGetResult rabbitGetResult;
@@ -71,7 +67,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Management
             }
             finally
             {
-                foreach (var deliveyTag in deliveryTags)
+                foreach (ulong deliveyTag in deliveryTags)
                 {
                     channel.BasicReject(deliveyTag, requeue: true);
                 }
@@ -80,11 +76,11 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Management
 
         private Map GetMessageItem(BasicGetResult rabbitGetResult)
         {
-            var message = new Message();
+            Message message = new();
             _mapper.MapFromRabbit(message, rabbitGetResult.Body, rabbitGetResult.BasicProperties);
-            var buffer = message.Encode();
+            ByteBuffer buffer = message.Encode();
 
-            var map = new Map
+            Map map = new()
             {
                 [ManagementConstants.Properties.Message] = buffer.Buffer[0..buffer.Length].ToArray()
             };

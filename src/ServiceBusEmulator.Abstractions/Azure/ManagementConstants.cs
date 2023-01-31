@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Xim.Simulators.ServiceBus.Azure
+﻿namespace ServiceBusEmulator.Abstractions.Azure
 {
     public static class ManagementConstants
     {

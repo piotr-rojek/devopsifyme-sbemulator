@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     /// <summary>
     /// Provides message delivery information and means to wait for topic delivery.

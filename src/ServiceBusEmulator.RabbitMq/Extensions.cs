@@ -1,36 +1,34 @@
-﻿using Xim.Simulators.ServiceBus.InMemory;
-using Xim.Simulators.ServiceBus.Rabbit.Endpoints;
-using Xim.Simulators.ServiceBus.Rabbit.Management;
-using Xim.Simulators.ServiceBus.Rabbit;
+﻿using Amqp.Listener;
 using Microsoft.Extensions.DependencyInjection;
-using Amqp.Listener;
-using Xim.Simulators.ServiceBus.Options;
+using ServiceBusEmulator.RabbitMq.Commands;
+using ServiceBusEmulator.RabbitMq.Endpoints;
+using ServiceBusEmulator.RabbitMq.Options;
 
 namespace ServiceBusEmulator.RabbitMq
 {
     public static class Extensions
     {
-        public static IServiceCollection AddServiceBusEmulatorRabbitMqBackend(this IServiceCollection services, Action<RabbitMqBackendOptions> configure = null)
+        public static IServiceCollection AddServiceBusEmulatorRabbitMqBackend(this IServiceCollection services, Action<RabbitMqBackendOptions>? configure = null)
         {
             configure ??= (o) => { };
 
-            services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
-            services.AddSingleton(sp => sp.GetRequiredService<ILinkProcessor>() as IReceiverLinkFinder);
+            _ = services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
+            _ = services.AddSingleton(sp => sp.GetRequiredService<ILinkProcessor>() as IReceiverLinkFinder);
 
-            services.AddTransient<RabbitMqUtilities>();
-            services.AddTransient<RabbitMqMapper>();
-            services.AddTransient<RabbitMqSenderEndpoint>();
-            services.AddTransient<RabbitMqReceiverEndpoint>();
-            services.AddTransient<RabbitMqManagementSenderEndpoint>();
-            services.AddTransient<RabbitMqManagementReceiverEndpoint>();
+            _ = services.AddTransient<RabbitMqUtilities>();
+            _ = services.AddTransient<RabbitMqMapper>();
+            _ = services.AddTransient<RabbitMqSenderEndpoint>();
+            _ = services.AddTransient<RabbitMqReceiverEndpoint>();
+            _ = services.AddTransient<RabbitMqManagementSenderEndpoint>();
+            _ = services.AddTransient<RabbitMqManagementReceiverEndpoint>();
 
-            services.AddTransient<RenewLockCommand>();
-            services.AddTransient<PeekMessageCommand>();
-            services.AddTransient<RenewSessionLockCommand>();
-            services.AddTransient<SetSessionStateCommand>();
-            services.AddTransient<GetSessionStateCommand>();
+            _ = services.AddTransient<RenewLockCommand>();
+            _ = services.AddTransient<PeekMessageCommand>();
+            _ = services.AddTransient<RenewSessionLockCommand>();
+            _ = services.AddTransient<SetSessionStateCommand>();
+            _ = services.AddTransient<GetSessionStateCommand>();
 
-            services.AddOptions<RabbitMqBackendOptions>().Configure(configure).BindConfiguration("Emulator:RabbitMq");
+            _ = services.AddOptions<RabbitMqBackendOptions>().Configure(configure).BindConfiguration("Emulator:RabbitMq");
 
             return services;
         }

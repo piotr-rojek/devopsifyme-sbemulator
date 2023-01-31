@@ -1,15 +1,15 @@
-﻿using System;
-using System.Net.Security;
-using System.Threading.Tasks;
-using Amqp;
+﻿using Amqp;
 using Amqp.Listener;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Xim.Simulators.ServiceBus.Azure;
-using Xim.Simulators.ServiceBus.Options;
-using Xim.Simulators.ServiceBus.Security;
+using ServiceBusEmulator.Abstractions.Options;
+using ServiceBusEmulator.Azure;
+using ServiceBusEmulator.Security;
+using System;
+using System.Net.Security;
+using System.Threading.Tasks;
 
-namespace Xim.Simulators.ServiceBus
+namespace ServiceBusEmulator
 {
     public class ServiceBusEmulatorHost
     {
@@ -23,7 +23,7 @@ namespace Xim.Simulators.ServiceBus
 
         public ServiceBusEmulatorHost(ILinkProcessor linkProcessor, CbsRequestProcessor cbsRequestProcessor, IOptions<ServiceBusEmulatorOptions> options, ILogger<ServiceBusEmulatorHost> logger)
         {
-            var o = options.Value;
+            ServiceBusEmulatorOptions o = options.Value;
             Settings = o;
 
             _linkProcessor = linkProcessor;
@@ -35,9 +35,9 @@ namespace Xim.Simulators.ServiceBus
         {
             try
             {
-                if(Settings.ServerCertificate == null)
+                if (Settings.ServerCertificate == null)
                 {
-                    throw new ArgumentNullException(nameof(Settings.ServerCertificate));  
+                    throw new ArgumentNullException(nameof(Settings.ServerCertificate));
                 }
                 _containerHost = BuildSecureServiceBusHost();
                 await StartContainerHostAsync(_containerHost).ConfigureAwait(false);
@@ -51,7 +51,9 @@ namespace Xim.Simulators.ServiceBus
         }
 
         public Task StopAsync()
-            => Task.Run(Abort);
+        {
+            return Task.Run(Abort);
+        }
 
         public void Abort()
         {
@@ -71,19 +73,20 @@ namespace Xim.Simulators.ServiceBus
         }
 
         private Task StartContainerHostAsync(IContainerHost host)
-            => Task.Run(() =>
-               {
-                   host.RegisterRequestProcessor("$cbs", _cbsRequestProcessor);
-                   host.RegisterLinkProcessor(_linkProcessor);
-                   host.Open();
-               });
-
+        {
+            return Task.Run(() =>
+                       {
+                           host.RegisterRequestProcessor("$cbs", _cbsRequestProcessor);
+                           host.RegisterLinkProcessor(_linkProcessor);
+                           host.Open();
+                       });
+        }
 
         private ContainerHost BuildSecureServiceBusHost()
         {
-            var port = Settings.Port;
-            var address = new Address($"amqps://localhost:{port}");
-            var host = new ContainerHost(new[] { address }, Settings.ServerCertificate);
+            int port = Settings.Port;
+            Address address = new($"amqps://localhost:{port}");
+            ContainerHost host = new(new[] { address }, Settings.ServerCertificate);
 
             host.Listeners[0].HandlerFactory = _ => AzureHandler.Instance;
             host.Listeners[0].SASL.EnableAzureSaslMechanism();

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Xim.Simulators.ServiceBus.InMemory.Delivering;
+﻿using ServiceBusEmulator.InMemory.Delivering;
+using System.Collections.Generic;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Entities
+namespace ServiceBusEmulator.InMemory.Entities
 {
     /// <summary>
     /// Represents a service bus topic.

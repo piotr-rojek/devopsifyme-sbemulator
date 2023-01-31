@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Amqp;
+using Amqp.Framing;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Amqp;
-using Amqp.Framing;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     public sealed class Delivery : IDelivery, IDisposable
     {
         private bool _disposed;
-        private readonly ManualResetEventSlim _processedEvent = new ManualResetEventSlim(false);
+        private readonly ManualResetEventSlim _processedEvent = new(false);
 
         public Message Message { get; }
 
@@ -29,36 +29,35 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
 
         private static DeliveryResult? GetResult(DeliveryState deliveryState)
         {
-            if (deliveryState == null)
-                return null;
-            else if (deliveryState is Rejected)
-                return DeliveryResult.DeadLettered;
-            else if (deliveryState is Modified)
-                return DeliveryResult.Abandoned;
-            else if (deliveryState is Accepted)
-                return DeliveryResult.Completed;
-            else if (deliveryState is Released)
-                return DeliveryResult.Lost;
-            else
-                return DeliveryResult.Unknown;
+            return deliveryState switch
+            {
+                null => null,
+                Rejected => DeliveryResult.DeadLettered,
+                Modified => DeliveryResult.Abandoned,
+                Accepted => DeliveryResult.Completed,
+                Released => DeliveryResult.Lost,
+                _ => DeliveryResult.Unknown
+            };
         }
 
         public Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
-            => Task.Run(() =>
-            {
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var result = _processedEvent.Wait(timeout, cancellationToken);
-                    return _disposed
-                        ? Task.FromException<bool>(new ObjectDisposedException(nameof(Delivery)))
-                        : Task.FromResult(result);
-                }
-                catch (OperationCanceledException)
-                {
-                    return Task.FromCanceled<bool>(cancellationToken);
-                }
-            });
+        {
+            return Task.Run(() =>
+                    {
+                        try
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            bool result = _processedEvent.Wait(timeout, cancellationToken);
+                            return _disposed
+                                ? Task.FromException<bool>(new ObjectDisposedException(nameof(Delivery)))
+                                : Task.FromResult(result);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            return Task.FromCanceled<bool>(cancellationToken);
+                        }
+                    });
+        }
 
         internal void Process(DeliveryState deliveryState)
         {
@@ -70,7 +69,10 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
         public void Dispose()
         {
             if (_disposed)
+            {
                 return;
+            }
+
             _disposed = true;
             _processedEvent.Set();
             _processedEvent.Dispose();

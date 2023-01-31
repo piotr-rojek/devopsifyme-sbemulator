@@ -1,10 +1,9 @@
-﻿using System;
-using Amqp;
+﻿using Amqp;
 using Amqp.Framing;
 using Amqp.Listener;
 using RabbitMQ.Client;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
+namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqSenderEndpoint : LinkEndpoint
     {
@@ -57,7 +56,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
 
         protected void OnMessage(Message message)
         {
-            var prop = Channel.CreateBasicProperties();
+            IBasicProperties prop = Channel.CreateBasicProperties();
             byte[] body = _mapper.MapToRabbit(prop, message);
 
             Channel.BasicPublish(ExchangeName, RoutingKey, true, prop, body);

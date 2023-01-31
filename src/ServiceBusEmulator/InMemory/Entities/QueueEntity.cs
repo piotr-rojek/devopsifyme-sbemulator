@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Amqp;
+using ServiceBusEmulator.InMemory.Delivering;
+using System;
 using System.Collections.Generic;
-using Amqp;
-using Xim.Simulators.ServiceBus.InMemory.Delivering;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Entities
+namespace ServiceBusEmulator.InMemory.Entities
 {
     internal sealed class QueueEntity : IQueue, IEntity, IDisposable
     {
         private bool _disposed;
-        private readonly DeliveryQueue _deliveryQueue = new DeliveryQueue();
-        private readonly List<Delivery> _deliveries = new List<Delivery>();
+        private readonly DeliveryQueue _deliveryQueue = new();
+        private readonly List<Delivery> _deliveries = new();
 
         public string Name { get; }
 
@@ -24,22 +24,33 @@ namespace Xim.Simulators.ServiceBus.InMemory.Entities
         public IDelivery Post(Message message)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(typeof(QueueEntity).Name);
+            }
+
             if (message == null)
+            {
                 throw new ArgumentNullException(nameof(message));
-            var delivery = new Delivery(message);
+            }
+
+            Delivery delivery = new(message);
             _deliveryQueue.Enqueue(delivery);
             _deliveries.Add(delivery);
             return delivery;
         }
 
         public override string ToString()
-            => Name;
+        {
+            return Name;
+        }
 
         public void Dispose()
         {
             if (_disposed)
+            {
                 return;
+            }
+
             _disposed = true;
 
             _deliveryQueue.Dispose();
@@ -50,7 +61,10 @@ namespace Xim.Simulators.ServiceBus.InMemory.Entities
             }
         }
 
-        void IEntity.Post(Message message) => Post(message);
+        void IEntity.Post(Message message)
+        {
+            _ = Post(message);
+        }
 
         DeliveryQueue IEntity.DeliveryQueue => _deliveryQueue;
     }

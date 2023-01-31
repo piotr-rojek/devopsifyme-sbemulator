@@ -1,8 +1,8 @@
-﻿using System;
-using Amqp.Framing;
+﻿using Amqp.Framing;
 using Amqp.Handler;
+using System;
 
-namespace Xim.Simulators.ServiceBus.Azure
+namespace ServiceBusEmulator.Azure
 {
     internal sealed class AzureHandler : IHandler
     {
@@ -11,7 +11,9 @@ namespace Xim.Simulators.ServiceBus.Azure
         private AzureHandler() { }
 
         public bool CanHandle(EventId id)
-            => id == EventId.SendDelivery || id == EventId.LinkLocalOpen;
+        {
+            return id is EventId.SendDelivery or EventId.LinkLocalOpen;
+        }
 
         public void Handle(Event protocolEvent)
         {
@@ -20,9 +22,9 @@ namespace Xim.Simulators.ServiceBus.Azure
                 delivery.Tag = Guid.NewGuid().ToByteArray();
             }
 
-            if(protocolEvent.Id == EventId.LinkLocalOpen && protocolEvent.Context is Attach attach)
+            if (protocolEvent.Id == EventId.LinkLocalOpen && protocolEvent.Context is Attach attach)
             {
-                attach.MaxMessageSize = Int32.MaxValue;
+                attach.MaxMessageSize = int.MaxValue;
             }
         }
     }

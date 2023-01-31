@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
+using ServiceBusEmulator.Abstractions.Options;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Xim.Simulators.ServiceBus.Options;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Entities
+namespace ServiceBusEmulator.InMemory.Entities
 {
     internal class EntityLookup : IEntityLookup
     {
@@ -13,7 +13,7 @@ namespace Xim.Simulators.ServiceBus.InMemory.Entities
 
         public EntityLookup(IOptions<ServiceBusEmulatorOptions> options)
         {
-            var o = options.Value;
+            ServiceBusEmulatorOptions o = options.Value;
 
             var topics = o.Topics
                 .Select(topic => new
@@ -50,17 +50,23 @@ namespace Xim.Simulators.ServiceBus.InMemory.Entities
         }
 
         public IEntity Find(string name)
-            => _entities.TryGetValue(name, out IEntity entity)
-                ? entity
-                : null;
+        {
+            return _entities.TryGetValue(name, out IEntity entity)
+                        ? entity
+                        : null;
+        }
 
         public IEnumerator<(string Address, IEntity Entity)> GetEnumerator()
         {
             foreach (KeyValuePair<string, IEntity> item in _entities)
+            {
                 yield return (item.Key, item.Value);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        {
+            return GetEnumerator();
+        }
     }
 }

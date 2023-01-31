@@ -1,8 +1,8 @@
 ﻿using Amqp;
 using RabbitMQ.Client;
-using Xim.Simulators.ServiceBus.Azure;
+using ServiceBusEmulator.Abstractions.Azure;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Management
+namespace ServiceBusEmulator.RabbitMq.Commands
 {
     public interface IManagementCommand
     {

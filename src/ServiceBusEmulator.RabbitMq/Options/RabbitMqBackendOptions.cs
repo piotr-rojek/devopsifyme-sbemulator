@@ -1,4 +1,4 @@
-﻿namespace Xim.Simulators.ServiceBus.Options
+﻿namespace ServiceBusEmulator.RabbitMq.Options
 {
     public class RabbitMqBackendOptions
     {

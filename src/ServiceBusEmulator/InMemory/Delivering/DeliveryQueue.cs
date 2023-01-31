@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Amqp;
+using Amqp.Listener;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using Amqp;
-using Amqp.Listener;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     public sealed class DeliveryQueue : IDeliveryQueue, IDisposable
     {
@@ -12,23 +12,28 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
         private long _sequence;
 
         private readonly BlockingCollection<Delivery> _queue
-            = new BlockingCollection<Delivery>(new ConcurrentQueue<Delivery>());
+            = new(new ConcurrentQueue<Delivery>());
 
         private readonly ConcurrentDictionary<Message, Delivery> _delivery
-            = new ConcurrentDictionary<Message, Delivery>();
+            = new();
 
         public void Enqueue(Delivery delivery)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(typeof(DeliveryQueue).Name);
-            delivery.Message.AddSequenceNumber(Interlocked.Increment(ref _sequence));
+            }
+
+            _ = delivery.Message.AddSequenceNumber(Interlocked.Increment(ref _sequence));
             _queue.Add(delivery);
         }
 
         public Message Dequeue(CancellationToken cancellationToken)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(typeof(DeliveryQueue).Name);
+            }
 
             Delivery delivery = _queue.Take(cancellationToken);
 
@@ -40,7 +45,9 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
         public void Process(MessageContext messageContext)
         {
             if (_disposed)
+            {
                 throw new ObjectDisposedException(typeof(DeliveryQueue).Name);
+            }
 
             if (_delivery.TryRemove(messageContext.Message, out Delivery delivery))
             {
@@ -51,7 +58,10 @@ namespace Xim.Simulators.ServiceBus.InMemory.Delivering
         public void Dispose()
         {
             if (_disposed)
+            {
                 return;
+            }
+
             _disposed = true;
             _queue.Dispose();
         }

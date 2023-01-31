@@ -1,12 +1,12 @@
 using Amqp;
+using ServiceBusEmulator;
 using ServiceBusEmulator.RabbitMq;
-using Xim.Simulators.ServiceBus;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddServiceBusEmulator();
-        services.AddServiceBusEmulatorRabbitMqBackend();
+        _ = services.AddServiceBusEmulator();
+        _ = services.AddServiceBusEmulatorRabbitMqBackend();
     })
     .Build();
 

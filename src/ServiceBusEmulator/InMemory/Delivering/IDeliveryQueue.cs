@@ -1,8 +1,8 @@
-﻿using System.Threading;
-using Amqp;
+﻿using Amqp;
 using Amqp.Listener;
+using System.Threading;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     internal interface IDeliveryQueue
     {

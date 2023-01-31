@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Amqp.Framing;
+using Amqp.Listener;
+using ServiceBusEmulator.InMemory.Delivering;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Amqp.Framing;
-using Amqp.Listener;
-using Xim.Simulators.ServiceBus.InMemory.Delivering;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Endpoints
+namespace ServiceBusEmulator.InMemory.Endpoints
 {
     internal sealed class OutgoingLinkEndpoint : LinkEndpoint
     {
@@ -18,7 +18,9 @@ namespace Xim.Simulators.ServiceBus.InMemory.Endpoints
         }
 
         public override void OnLinkClosed(ListenerLink link, Error error)
-            => CancelFlowTask();
+        {
+            CancelFlowTask();
+        }
 
         public override void OnFlow(FlowContext flowContext)
         {
@@ -27,12 +29,12 @@ namespace Xim.Simulators.ServiceBus.InMemory.Endpoints
             _flowTask = new CancellationTokenSource();
             CancellationToken cancellationToken = _flowTask.Token;
 
-            Task.Run(() => SendMessages(flowContext, cancellationToken));
+            _ = Task.Run(() => SendMessages(flowContext, cancellationToken));
         }
 
         private void SendMessages(FlowContext flowContext, CancellationToken cancellationToken)
         {
-            var messages = flowContext.Messages;
+            int messages = flowContext.Messages;
             while (messages-- > 0)
             {
                 try
@@ -56,7 +58,9 @@ namespace Xim.Simulators.ServiceBus.InMemory.Endpoints
         }
 
         public override void OnMessage(MessageContext messageContext)
-            => throw new NotSupportedException();
+        {
+            throw new NotSupportedException();
+        }
 
         private void CancelFlowTask()
         {

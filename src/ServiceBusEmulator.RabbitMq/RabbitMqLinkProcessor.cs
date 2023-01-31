@@ -4,13 +4,12 @@ using Amqp.Listener;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
+using ServiceBusEmulator.Abstractions.Security;
+using ServiceBusEmulator.RabbitMq.Endpoints;
+using ServiceBusEmulator.RabbitMq.Options;
 using System.Collections.Concurrent;
-using Xim.Simulators.ServiceBus.Options;
-using Xim.Simulators.ServiceBus.Rabbit;
-using Xim.Simulators.ServiceBus.Rabbit.Endpoints;
 
-namespace Xim.Simulators.ServiceBus.InMemory
+namespace ServiceBusEmulator.RabbitMq
 {
 
     internal class RabbitMqLinkProcessor : ILinkProcessor, IReceiverLinkFinder
@@ -32,7 +31,7 @@ namespace Xim.Simulators.ServiceBus.InMemory
             _options = options.Value;
             _logger = logger;
 
-            var factory = new RabbitMQ.Client.ConnectionFactory()
+            RabbitMQ.Client.ConnectionFactory factory = new()
             {
                 Password = _options.Password,
                 UserName = _options.Username,
@@ -71,18 +70,18 @@ namespace Xim.Simulators.ServiceBus.InMemory
 
         private void AttachIncomingLink(AttachContext attachContext, Target target)
         {
-            var channel = _connection.CreateModel();
+            RabbitMQ.Client.IModel channel = _connection.CreateModel();
             _utilities.EnsureExists(channel, target.Address);
 
             if (target.Address.Contains("$management"))
             {
-                var endpoint = _services.GetRequiredService<RabbitMqManagementSenderEndpoint>();
+                RabbitMqManagementSenderEndpoint endpoint = _services.GetRequiredService<RabbitMqManagementSenderEndpoint>();
                 endpoint.SetContext(channel, target);
                 attachContext.Complete(endpoint, 300);
             }
             else
             {
-                var endpoint = _services.GetRequiredService<RabbitMqSenderEndpoint>();
+                RabbitMqSenderEndpoint endpoint = _services.GetRequiredService<RabbitMqSenderEndpoint>();
                 endpoint.SetContext(channel, target);
                 attachContext.Complete(endpoint, 300);
             }
@@ -92,7 +91,7 @@ namespace Xim.Simulators.ServiceBus.InMemory
 
         private void AttachOutgoingLink(AttachContext attachContext, Source source)
         {
-            var channel = _connection.CreateModel();
+            RabbitMQ.Client.IModel channel = _connection.CreateModel();
             _utilities.EnsureExists(channel, source.Address);
 
             attachContext.Attach.MaxMessageSize = 9999;
@@ -100,17 +99,17 @@ namespace Xim.Simulators.ServiceBus.InMemory
             if (source.Address.Contains("$management"))
             {
                 string targetAddress = ((Target)attachContext.Attach.Target).Address;
-                OutgoingLinks.TryAdd(targetAddress, attachContext.Link);
+                _ = OutgoingLinks.TryAdd(targetAddress, attachContext.Link);
                 attachContext.Link.Closed += (s, e) => OutgoingLinks.TryRemove(targetAddress, out _);
 
-                var endpoint = _services.GetRequiredService<RabbitMqManagementReceiverEndpoint>();
+                RabbitMqManagementReceiverEndpoint endpoint = _services.GetRequiredService<RabbitMqManagementReceiverEndpoint>();
                 endpoint.SetContext(channel);
 
                 attachContext.Complete(endpoint, 0);
             }
             else
             {
-                var endpoint = _services.GetRequiredService<RabbitMqReceiverEndpoint>();
+                RabbitMqReceiverEndpoint endpoint = _services.GetRequiredService<RabbitMqReceiverEndpoint>();
                 endpoint.SetContext(channel, source, attachContext.Attach.RcvSettleMode);
                 attachContext.Complete(endpoint, 0);
             }
@@ -118,14 +117,9 @@ namespace Xim.Simulators.ServiceBus.InMemory
             _logger.LogDebug($"Attached outgoing link to queue '{source.Address}'.");
         }
 
-        public ListenerLink FindByAddress(string address)
+        public ListenerLink? FindByAddress(string address)
         {
-            if (OutgoingLinks.TryGetValue(address, out var link))
-            {
-                return link;
-            }
-
-            return null;
+            return OutgoingLinks.TryGetValue(address, out ListenerLink? link) ? link : null;
         }
     }
 }

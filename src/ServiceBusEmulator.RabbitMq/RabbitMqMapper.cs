@@ -1,13 +1,10 @@
-﻿using Amqp.Framing;
-using Amqp;
-using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using Amqp;
+using Amqp.Framing;
 using Amqp.Types;
+using RabbitMQ.Client;
+using System.Globalization;
 
-namespace Xim.Simulators.ServiceBus.Rabbit
+namespace ServiceBusEmulator.RabbitMq
 {
     public class RabbitMqMapper
     {
@@ -41,15 +38,15 @@ namespace Xim.Simulators.ServiceBus.Rabbit
             };
 
             message.ApplicationProperties = new ApplicationProperties();
-            foreach (var x in prop.GetHeadersStartingWith<object>("x-sb-app-"))
+            foreach ((string key, object value) in prop.GetHeadersStartingWith<object>("x-sb-app-"))
             {
-                message.ApplicationProperties[x.key] = x.value;
+                message.ApplicationProperties[key] = value;
             }
 
             message.MessageAnnotations = new MessageAnnotations();
-            foreach (var x in prop.GetHeadersStartingWith<object>("x-sb-annotation-"))
+            foreach ((string key, object value) in prop.GetHeadersStartingWith<object>("x-sb-annotation-"))
             {
-                message.MessageAnnotations[new Symbol(x.key)] = x.value;
+                message.MessageAnnotations[new Symbol(key)] = value;
             }
 
             message.Properties = new Properties
@@ -68,7 +65,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit
             };
         }
 
-        public byte[] MapToRabbit(IBasicProperties prop, Amqp.Message rMessage)
+        public byte[] MapToRabbit(IBasicProperties prop, Message rMessage)
         {
             prop.Headers ??= new Dictionary<string, object>();
             byte[] data = new byte[0];
@@ -83,7 +80,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit
                 else
                 {
                     prop.Type = rMessage.BodySection.Descriptor.Name;
-                    var buffer = new ByteBuffer(1024, true);
+                    ByteBuffer buffer = new(1024, true);
                     rMessage.BodySection.Encode(buffer);
                     data = buffer.Buffer[0..buffer.Length].ToArray();
                 }
@@ -97,10 +94,10 @@ namespace Xim.Simulators.ServiceBus.Rabbit
                 prop.Headers["x-delivery-count"] = rMessage.Header.DeliveryCount;
             }
 
-            var rProperties = rMessage.Properties;
+            Properties rProperties = rMessage.Properties;
             if (rProperties != null)
             {
-                var creationTime = rProperties.CreationTime == DateTime.MinValue ? DateTime.UtcNow : rProperties.CreationTime;
+                DateTime creationTime = rProperties.CreationTime == DateTime.MinValue ? DateTime.UtcNow : rProperties.CreationTime;
 
                 prop.ReplyTo = rProperties.ReplyTo;
                 prop.MessageId = rProperties.MessageId;
@@ -119,7 +116,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit
 
             if (rMessage.ApplicationProperties != null)
             {
-                foreach (var p in rMessage.ApplicationProperties.Map)
+                foreach (KeyValuePair<object, object> p in rMessage.ApplicationProperties.Map)
                 {
                     prop.Headers[$"x-sb-app-{p.Key}"] = p.Value.ToString();
                 }
@@ -127,16 +124,16 @@ namespace Xim.Simulators.ServiceBus.Rabbit
 
             if (rMessage.MessageAnnotations != null)
             {
-                foreach (var p in rMessage.MessageAnnotations.Map)
+                foreach (KeyValuePair<object, object> p in rMessage.MessageAnnotations.Map)
                 {
                     prop.Headers[$"x-sb-annotation-{p.Key}"] = p.Value.ToString();
                 }
             }
 
             //remove empty values
-            foreach (var it in prop.Headers.Where(it => null == it.Value))
+            foreach (KeyValuePair<string, object> it in prop.Headers.Where(it => null == it.Value))
             {
-                prop.Headers.Remove(it.Key);
+                _ = prop.Headers.Remove(it.Key);
             }
 
             return data;

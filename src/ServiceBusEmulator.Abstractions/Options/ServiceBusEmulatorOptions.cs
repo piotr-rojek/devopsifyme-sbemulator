@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ServiceBusEmulator.Abstractions.Domain;
 using System.Security.Cryptography.X509Certificates;
-using Xim.Simulators.ServiceBus.Model;
 
-namespace Xim.Simulators.ServiceBus.Options
+namespace ServiceBusEmulator.Abstractions.Options
 {
     /// <summary>
     /// Service bus simulator settings.

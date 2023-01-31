@@ -3,16 +3,14 @@ using Amqp.Framing;
 using Amqp.Listener;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
-using System.Collections.Generic;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
+namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqReceiverEndpoint : LinkEndpoint
     {
         private readonly RabbitMqMapper _mapper;
         private readonly RabbitMqUtilities _utilities;
-        private readonly Dictionary<Guid, ulong> _deliveryTags = new Dictionary<Guid, ulong>();
+        private readonly Dictionary<Guid, ulong> _deliveryTags = new();
 
         public RabbitMqReceiverEndpoint(RabbitMqMapper mapper, RabbitMqUtilities utilities)
         {
@@ -40,7 +38,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
 
         public override void OnDisposition(DispositionContext dispositionContext)
         {
-            var deliveryTag = _deliveryTags[new Guid(dispositionContext.Message.DeliveryTag)];
+            ulong deliveryTag = _deliveryTags[new Guid(dispositionContext.Message.DeliveryTag)];
             if (dispositionContext.Settled)
             {
                 dispositionContext.Complete();
@@ -70,7 +68,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
         {
             int requestedCount = flowContext.Messages;
 
-            var consumer = new EventingBasicConsumer(Channel);
+            EventingBasicConsumer consumer = new(Channel);
             consumer.Received += (m, e) =>
             {
                 if (--requestedCount <= 0)
@@ -78,7 +76,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
                     Channel.BasicCancel(e.ConsumerTag);
                 }
 
-                var message = new Message();
+                Message message = new();
                 _mapper.MapFromRabbit(message, e.Body, e.BasicProperties);
 
                 flowContext.Link.SendMessage(message);
@@ -86,7 +84,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
             };
 
             Channel.BasicQos(0, 1, false);
-            Channel.BasicConsume(QueueName, ReceiveSettleMode == ReceiverSettleMode.First, consumer);
+            _ = Channel.BasicConsume(QueueName, ReceiveSettleMode == ReceiverSettleMode.First, consumer);
         }
 
         public override void OnMessage(MessageContext messageContext)

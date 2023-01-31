@@ -1,4 +1,4 @@
-﻿namespace Xim.Simulators.ServiceBus.Security
+﻿namespace ServiceBusEmulator.Abstractions.Security
 {
     public interface ITokenValidator
     {

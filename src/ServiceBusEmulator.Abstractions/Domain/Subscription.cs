@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace Xim.Simulators.ServiceBus.Model
+namespace ServiceBusEmulator.Abstractions.Domain
 {
     /// <summary>
     /// Describes a service bus subscription.
@@ -11,7 +10,7 @@ namespace Xim.Simulators.ServiceBus.Model
         // The name can contain only letters, numbers, periods, hyphens and underscores.
         // The name must start and end with a letter or number.
         // The name must be between 1 and 50 characters long.
-        private static readonly Regex RxValidName = new Regex("^[A-Za-z0-9]$|^[A-Za-z0-9][\\w\\.\\-]{0,48}[A-Za-z0-9]$", RegexOptions.Compiled);
+        private static readonly Regex RxValidName = new("^[A-Za-z0-9]$|^[A-Za-z0-9][\\w\\.\\-]{0,48}[A-Za-z0-9]$", RegexOptions.Compiled);
 
         /// <summary>
         /// The name of the <see cref="Subscription"/>.

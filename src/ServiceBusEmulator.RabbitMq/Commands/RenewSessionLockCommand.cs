@@ -1,19 +1,17 @@
 ﻿using Amqp;
 using Amqp.Types;
 using RabbitMQ.Client;
-using System;
-using Xim.Simulators.ServiceBus.Azure;
+using ServiceBusEmulator.Abstractions.Azure;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Management
+namespace ServiceBusEmulator.RabbitMq.Commands
 {
     public class RenewSessionLockCommand : IManagementCommand
     {
         public (Message, AmqpResponseStatusCode) Handle(Message request, IModel channel, string address)
         {
-            var requestBody = (Map)request.Body;
-
-            var tokens = requestBody[ManagementConstants.Properties.LockTokens] as Guid[];
-            var responseBody = new Map
+            Map requestBody = (Map)request.Body;
+            _ = requestBody[ManagementConstants.Properties.LockTokens] as Guid[];
+            Map responseBody = new()
             {
                 [ManagementConstants.Properties.Expiration] = DateTime.UtcNow.AddMinutes(5)
             };

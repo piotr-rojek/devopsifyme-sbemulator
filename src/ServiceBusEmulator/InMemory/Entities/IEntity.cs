@@ -1,6 +1,6 @@
-﻿using Xim.Simulators.ServiceBus.InMemory.Delivering;
+﻿using ServiceBusEmulator.InMemory.Delivering;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Entities
+namespace ServiceBusEmulator.InMemory.Entities
 {
     public interface IEntity
     {

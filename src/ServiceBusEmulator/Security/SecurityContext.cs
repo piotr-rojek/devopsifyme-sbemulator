@@ -1,11 +1,12 @@
-﻿using System;
-using System.Reflection;
-using System.Security.Principal;
-using Amqp;
+﻿using Amqp;
 using Amqp.Framing;
 using Amqp.Listener;
+using ServiceBusEmulator.Abstractions.Security;
+using System;
+using System.Reflection;
+using System.Security.Principal;
 
-namespace Xim.Simulators.ServiceBus.Security
+namespace ServiceBusEmulator.Security
 {
     internal sealed class SecurityContext : ISecurityContext
     {
@@ -16,7 +17,9 @@ namespace Xim.Simulators.ServiceBus.Security
         public void Authorize(Connection connection)
         {
             if (connection == null)
+            {
                 throw new ArgumentNullException(nameof(connection));
+            }
 
             if (connection is ListenerConnection listenerConnection)
             {
@@ -26,8 +29,10 @@ namespace Xim.Simulators.ServiceBus.Security
         }
 
         public bool IsAuthorized(Connection connection)
-            => (connection is ListenerConnection listenerConnection)
-                && listenerConnection.Principal == XimPrincipal;
+        {
+            return connection is ListenerConnection listenerConnection
+                        && listenerConnection.Principal == XimPrincipal;
+        }
 
         private void ConnectionClosed(IAmqpObject sender, Error error)
         {
@@ -36,9 +41,11 @@ namespace Xim.Simulators.ServiceBus.Security
         }
 
         private static void SetPrincipal(ListenerConnection connection, IPrincipal principal)
-            => connection
-                .GetType()
-                .GetProperty(nameof(ListenerConnection.Principal), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .SetValue(connection, principal);
+        {
+            connection
+                        .GetType()
+                        .GetProperty(nameof(ListenerConnection.Principal), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .SetValue(connection, principal);
+        }
     }
 }

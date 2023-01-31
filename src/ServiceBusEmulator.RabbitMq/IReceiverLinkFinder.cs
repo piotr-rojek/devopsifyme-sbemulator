@@ -1,6 +1,6 @@
 ﻿using Amqp.Listener;
 
-namespace Xim.Simulators.ServiceBus.InMemory
+namespace ServiceBusEmulator.RabbitMq
 {
     public interface IReceiverLinkFinder
     {

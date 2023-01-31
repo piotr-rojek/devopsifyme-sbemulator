@@ -2,11 +2,11 @@
 using Amqp.Framing;
 using Amqp.Listener;
 using Microsoft.Extensions.Logging;
-using Xim.Simulators.ServiceBus.InMemory.Delivering;
-using Xim.Simulators.ServiceBus.InMemory.Endpoints;
-using Xim.Simulators.ServiceBus.InMemory.Entities;
+using ServiceBusEmulator.Abstractions.Security;
+using ServiceBusEmulator.InMemory.Delivering;
+using ServiceBusEmulator.InMemory.Entities;
 
-namespace Xim.Simulators.ServiceBus.InMemory
+namespace ServiceBusEmulator.InMemory
 {
     internal class InMemoryLinkProcessor : ILinkProcessor
     {
@@ -38,9 +38,13 @@ namespace Xim.Simulators.ServiceBus.InMemory
             }
 
             if (attachContext.Link.Role)
+            {
                 AttachIncomingLink(attachContext, (Target)attachContext.Attach.Target);
+            }
             else
+            {
                 AttachOutgoingLink(attachContext, (Source)attachContext.Attach.Source);
+            }
         }
 
         private void AttachIncomingLink(AttachContext attachContext, Target target)

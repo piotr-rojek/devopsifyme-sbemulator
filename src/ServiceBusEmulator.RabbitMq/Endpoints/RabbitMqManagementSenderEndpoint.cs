@@ -1,13 +1,11 @@
 ﻿using Amqp.Framing;
 using Amqp.Listener;
-using System;
-using RabbitMQ.Client;
-using Xim.Simulators.ServiceBus.InMemory;
-using Xim.Simulators.ServiceBus.Rabbit.Management;
-using Xim.Simulators.ServiceBus.Azure;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
+using ServiceBusEmulator.Abstractions.Azure;
+using ServiceBusEmulator.RabbitMq.Commands;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
+namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqManagementReceiverEndpoint : LinkEndpoint
     {
@@ -60,11 +58,11 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
 
         public override void OnMessage(MessageContext messageContext)
         {
-            var request = messageContext.Message;
-            var operation = request.ApplicationProperties?.Map[ManagementConstants.Request.Operation] as string;
-            var handler = GetCommandHandler(operation);
+            Amqp.Message request = messageContext.Message;
+            string? operation = request.ApplicationProperties?.Map[ManagementConstants.Request.Operation] as string;
+            IManagementCommand handler = GetCommandHandler(operation);
 
-            (var response, var status) = handler.Handle(request, Channel, Target.Address);
+            (Amqp.Message? response, AmqpResponseStatusCode status) = handler.Handle(request, Channel, Target.Address);
 
             using (response)
             {
@@ -75,7 +73,7 @@ namespace Xim.Simulators.ServiceBus.Rabbit.Endpoints
                 response.Properties ??= new Properties();
                 response.Properties.CorrelationId = request.Properties.MessageId;
 
-                var replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
+                ListenerLink replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
                 replyLink.SendMessage(response);
 
                 messageContext.Complete();

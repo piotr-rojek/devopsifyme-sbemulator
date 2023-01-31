@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Amqp.Framing;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Amqp.Framing;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+namespace ServiceBusEmulator.InMemory.Delivering
 {
     /// <summary>
     /// Provides message delivery information and means to wait for queue delivery.

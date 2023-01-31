@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Xim.Simulators.ServiceBus.Azure
+﻿namespace ServiceBusEmulator.Abstractions.Azure
 {
     public enum AmqpResponseStatusCode
     {
-#pragma warning disable 1591
         Accepted = 0xca,
         Ambiguous = 300,
         BadGateway = 0x1f6,
@@ -56,6 +49,5 @@ namespace Xim.Simulators.ServiceBus.Azure
         Unused = 0x132,
         UpgradeRequired = 0x1aa,
         UseProxy = 0x131
-#pragma warning restore 1591
     }
 }

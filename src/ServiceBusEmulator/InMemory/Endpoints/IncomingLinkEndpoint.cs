@@ -1,8 +1,8 @@
 ﻿using Amqp.Framing;
 using Amqp.Listener;
-using Xim.Simulators.ServiceBus.InMemory.Entities;
+using ServiceBusEmulator.InMemory.Entities;
 
-namespace Xim.Simulators.ServiceBus.InMemory.Endpoints
+namespace ServiceBusEmulator.InMemory.Endpoints
 {
 
 

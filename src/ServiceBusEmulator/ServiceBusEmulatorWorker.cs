@@ -3,9 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xim.Simulators.ServiceBus;
 
-namespace ServiceBusEmulator.Host
+namespace ServiceBusEmulator
 {
     public class ServiceBusEmulatorWorker : BackgroundService
     {

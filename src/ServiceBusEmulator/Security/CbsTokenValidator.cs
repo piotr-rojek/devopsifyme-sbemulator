@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceBusEmulator.Abstractions.Security;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,7 +13,7 @@ internal class SR
     }
 }
 
-namespace Xim.Simulators.ServiceBus.Security
+namespace ServiceBusEmulator.Security
 {
 
 
@@ -55,28 +56,28 @@ namespace Xim.Simulators.ServiceBus.Security
                 throw new ArgumentException(null, nameof(token));
             }
 
-            var query = token
-                .Substring(SasFullName.Length)
+            System.Collections.Generic.Dictionary<string, string> query = token
+[SasFullName.Length..]
                 .Split(new[] { SasPairSeparator }, StringSplitOptions.None)
                 .Select(pair => pair.Split(new[] { SasKeyValueSeparator }, 2, StringSplitOptions.None))
                 .ToDictionary(pair => pair[0], pair => pair.Length > 1 ? pair[1] : null);
 
-            if (!query.TryGetValue(SignedResource, out var audienceUri))
+            if (!query.TryGetValue(SignedResource, out string audienceUri))
             {
                 throw new ArgumentException(null, nameof(token));
             }
 
-            if (!query.TryGetValue(SignedExpiry, out var expiresOn))
+            if (!query.TryGetValue(SignedExpiry, out string expiresOn))
             {
                 throw new ArgumentException(null, nameof(token));
             }
 
-            if (!query.TryGetValue(SignedKeyName, out var keyName))
+            if (!query.TryGetValue(SignedKeyName, out string keyName))
             {
                 throw new ArgumentException(null, nameof(token));
             }
 
-            if (!query.TryGetValue(Signature, out var signature))
+            if (!query.TryGetValue(Signature, out string signature))
             {
                 throw new ArgumentException(null, nameof(token));
             }
@@ -91,7 +92,7 @@ namespace Xim.Simulators.ServiceBus.Security
             expiresOn = HttpUtility.UrlDecode(expiresOn);
             signature = HttpUtility.UrlDecode(signature);
 
-            var sharedAccessSignature = Sign($"{audienceUri}\n{expiresOn}", Encoding.UTF8.GetBytes(SharedAccessKey));
+            string sharedAccessSignature = Sign($"{audienceUri}\n{expiresOn}", Encoding.UTF8.GetBytes(SharedAccessKey));
 
             if (signature != sharedAccessSignature)
             {
@@ -101,10 +102,8 @@ namespace Xim.Simulators.ServiceBus.Security
 
         private static string Sign(string requestString, byte[] encodedSharedAccessKey)
         {
-            using (var hmac = new HMACSHA256(encodedSharedAccessKey))
-            {
-                return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(requestString)));
-            }
+            using HMACSHA256 hmac = new(encodedSharedAccessKey);
+            return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(requestString)));
         }
     }
 }

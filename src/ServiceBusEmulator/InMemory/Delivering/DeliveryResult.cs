@@ -1,4 +1,4 @@
-﻿namespace Xim.Simulators.ServiceBus.InMemory.Delivering
+﻿namespace ServiceBusEmulator.InMemory.Delivering
 {
     /// <summary>
     /// Represents a delivery result of a posted message.

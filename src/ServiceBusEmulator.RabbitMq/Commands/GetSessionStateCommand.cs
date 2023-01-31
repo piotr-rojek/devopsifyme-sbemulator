@@ -1,15 +1,15 @@
 ﻿using Amqp;
 using Amqp.Types;
 using RabbitMQ.Client;
-using Xim.Simulators.ServiceBus.Azure;
+using ServiceBusEmulator.Abstractions.Azure;
 
-namespace Xim.Simulators.ServiceBus.Rabbit.Management
+namespace ServiceBusEmulator.RabbitMq.Commands
 {
     public class GetSessionStateCommand : IManagementCommand
     {
         public (Message, AmqpResponseStatusCode) Handle(Message request, IModel channel, string address)
         {
-            var responseBody = new Map
+            Map responseBody = new()
             {
                 [ManagementConstants.Properties.SessionState] = new byte[0]
             };

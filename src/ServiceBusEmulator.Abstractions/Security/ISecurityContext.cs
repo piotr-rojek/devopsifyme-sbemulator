@@ -1,6 +1,6 @@
 ﻿using Amqp;
 
-namespace Xim.Simulators.ServiceBus
+namespace ServiceBusEmulator.Abstractions.Security
 {
     public interface ISecurityContext
     {

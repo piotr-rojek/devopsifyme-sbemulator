@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 
-var host = new HostBuilder()
+IHost host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .Build();
 
