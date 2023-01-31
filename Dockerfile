@@ -27,5 +27,6 @@ FROM mcr.microsoft.com/dotnet/runtime:7.0
     WORKDIR /app
     COPY --from=build-env /app/out .
     COPY --from=server-cert /home/testca/cert.pfx .
+    COPY --from=server-cert /home/testca/cacert.cer .
 
     ENTRYPOINT ["dotnet", "ServiceBusEmulator.Host.dll"]
