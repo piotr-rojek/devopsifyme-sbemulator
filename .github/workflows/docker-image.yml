@@ -1,0 +1,88 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}   # checkout the correct branch name
+        fetch-depth: 0                # fetch the whole repo history
+    
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: devopsifyme
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build the Docker image
+      run: docker compose build
+
+    - name: Push Docker Image - Emulator
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.semVer }} 
+        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.major }} 
+        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
+        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.majorMinorPatch }}
+        docker push devopsifyme/sbemu:latest
+        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.major }} 
+        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
+        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.majorMinorPatch  }}
+
+    - name: Push Docker Image - RabbitMQ
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.semVer }} 
+        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }} 
+        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
+        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.majorMinorPatch }}
+        docker push devopsifyme/sbemu-rabbitmq:latest
+        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }} 
+        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
+        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.majorMinorPatch  }}
+
+    - name: Archive build output
+      run: |
+        docker create --name output devopsifyme/sbemu:latest
+        docker cp output:/app/ output/
+        docker container rm output
+        tar -czvf sbemu-${{ steps.gitversion.outputs.semVer }}.tar.gz output
+
+    - name: Upload build output
+      uses: actions/upload-artifact@v3
+      with:
+        name: app
+        path: sbemu-${{ steps.gitversion.outputs.semVer }}.tar.gz
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_name: v${{ steps.gitversion.outputs.SemVer }}
+        tag_name: v${{ steps.gitversion.outputs.SemVer }}
+
