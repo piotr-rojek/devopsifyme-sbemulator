@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: devopsifyme/sbemu-rabbitmq:local
+    build: .
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+      - "5671:5671"
