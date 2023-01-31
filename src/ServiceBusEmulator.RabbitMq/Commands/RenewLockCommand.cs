@@ -14,7 +14,7 @@ namespace ServiceBusEmulator.RabbitMq.Commands
             Guid[]? tokens = requestBody[ManagementConstants.Properties.LockTokens] as Guid[];
             Map responseBody = new()
             {
-                [ManagementConstants.Properties.Expirations] = Enumerable.Repeat(DateTime.UtcNow.AddMinutes(5), tokens.Length).ToArray()
+                [ManagementConstants.Properties.Expirations] = Enumerable.Repeat(DateTime.UtcNow.AddMinutes(5), tokens?.Length ?? 0).ToArray()
             };
 
             return (new Message(responseBody), AmqpResponseStatusCode.OK);

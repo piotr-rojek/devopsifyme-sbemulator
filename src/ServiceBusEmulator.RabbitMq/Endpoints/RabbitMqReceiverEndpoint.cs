@@ -18,9 +18,9 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
             _utilities = utilities;
         }
 
-        public IModel Channel { get; private set; }
+        public IModel Channel { get; private set; } = null!;
 
-        protected string QueueName { get; private set; }
+        protected string QueueName { get; private set; } = null!;
 
         protected ReceiverSettleMode ReceiveSettleMode { get; private set; }
 

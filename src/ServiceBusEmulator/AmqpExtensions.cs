@@ -1,6 +1,7 @@
 ﻿using Amqp;
 using Amqp.Listener;
 using Amqp.Types;
+using ServiceBusEmulator.Azure;
 
 namespace ServiceBusEmulator
 {

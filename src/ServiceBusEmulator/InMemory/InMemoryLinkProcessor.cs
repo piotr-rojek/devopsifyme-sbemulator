@@ -4,6 +4,7 @@ using Amqp.Listener;
 using Microsoft.Extensions.Logging;
 using ServiceBusEmulator.Abstractions.Security;
 using ServiceBusEmulator.InMemory.Delivering;
+using ServiceBusEmulator.InMemory.Endpoints;
 using ServiceBusEmulator.InMemory.Entities;
 
 namespace ServiceBusEmulator.InMemory

@@ -38,13 +38,13 @@ namespace ServiceBusEmulator.RabbitMq
             };
 
             message.ApplicationProperties = new ApplicationProperties();
-            foreach ((string key, object value) in prop.GetHeadersStartingWith<object>("x-sb-app-"))
+            foreach ((string key, object? value) in prop.GetHeadersStartingWith<object>("x-sb-app-"))
             {
                 message.ApplicationProperties[key] = value;
             }
 
             message.MessageAnnotations = new MessageAnnotations();
-            foreach ((string key, object value) in prop.GetHeadersStartingWith<object>("x-sb-annotation-"))
+            foreach ((string key, object? value) in prop.GetHeadersStartingWith<object>("x-sb-annotation-"))
             {
                 message.MessageAnnotations[new Symbol(key)] = value;
             }

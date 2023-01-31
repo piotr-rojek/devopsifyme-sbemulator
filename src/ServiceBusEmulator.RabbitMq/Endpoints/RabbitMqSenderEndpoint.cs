@@ -16,15 +16,15 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
             _utilities = utilities;
         }
 
-        protected IModel Channel { get; private set; }
+        protected IModel Channel { get; private set; } = null!;
 
-        public Target Target { get; private set; }
+        public Target Target { get; private set; } = null!;
 
-        protected string ExchangeName { get; private set; }
+        protected string ExchangeName { get; private set; } = null!;
 
-        protected string QueueName { get; private set; }
+        protected string QueueName { get; private set; } = null!;
 
-        protected string RoutingKey { get; private set; }
+        protected string RoutingKey { get; private set; } = null!;
 
         public void SetContext(IModel channel, Target target)
         {

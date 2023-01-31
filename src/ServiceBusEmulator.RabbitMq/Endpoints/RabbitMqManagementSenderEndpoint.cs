@@ -9,7 +9,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqManagementReceiverEndpoint : LinkEndpoint
     {
-        public IModel Channel { get; private set; }
+        public IModel Channel { get; private set; } = null!;
 
         public void SetContext(IModel channel)
         {
@@ -47,8 +47,8 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
             _receiverLinkFinder = receiverLinkFinder;
         }
 
-        protected IModel Channel { get; private set; }
-        protected Target Target { get; private set; }
+        protected IModel Channel { get; private set; } = null!;
+        protected Target Target { get; private set; } = null!;
 
         public void SetContext(IModel channel, Target target)
         {
@@ -73,14 +73,19 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
                 response.Properties ??= new Properties();
                 response.Properties.CorrelationId = request.Properties.MessageId;
 
-                ListenerLink replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
-                replyLink.SendMessage(response);
+                ListenerLink? replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
+                if(replyLink == null)
+                {
+                    messageContext.Complete(new Error(Amqp.ErrorCode.PreconditionFailed));
+                    return;
+                }
 
+                replyLink.SendMessage(response);
                 messageContext.Complete();
             }
         }
 
-        private IManagementCommand GetCommandHandler(string operation)
+        private IManagementCommand GetCommandHandler(string? operation)
         {
             return operation switch
             {

@@ -20,17 +20,17 @@ namespace ServiceBusEmulator.RabbitMq
             return (T)Convert.ChangeType(value, typeof(T));
         }
 
-        public static IEnumerable<(string key, T value)> GetHeadersStartingWith<T>(this IBasicProperties prop, string keyPrefix)
+        public static IEnumerable<(string key, T? value)> GetHeadersStartingWith<T>(this IBasicProperties prop, string keyPrefix)
         {
             if (prop.Headers == null)
             {
                 yield break;
             }
 
-            foreach (KeyValuePair<string, object> x in prop.Headers.Where(it => it.Key.StartsWith(keyPrefix)))
+            foreach (KeyValuePair<string, object> header in prop.Headers.Where(it => it.Key.StartsWith(keyPrefix)))
             {
-                string key = x.Key[keyPrefix.Length..];
-                yield return (key, prop.GetHeader<T>(x.Key));
+                string key = header.Key[keyPrefix.Length..];
+                yield return (key, prop.GetHeader<T>(header.Key));
             }
         }
     }

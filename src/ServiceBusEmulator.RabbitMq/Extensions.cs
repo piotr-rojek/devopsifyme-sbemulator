@@ -13,7 +13,7 @@ namespace ServiceBusEmulator.RabbitMq
             configure ??= (o) => { };
 
             _ = services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
-            _ = services.AddSingleton(sp => sp.GetRequiredService<ILinkProcessor>() as IReceiverLinkFinder);
+            _ = services.AddSingleton(sp => (IReceiverLinkFinder)sp.GetRequiredService<ILinkProcessor>());
 
             _ = services.AddTransient<RabbitMqUtilities>();
             _ = services.AddTransient<RabbitMqMapper>();
