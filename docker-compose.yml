@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  rabbit:
+    image: devopsifyme/sbemu-rabbitmq:latest
+    build: 
+      context: /docker/rabbitmq-amqp1
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 30s
+      retries: 60
+
+  emulator:
+    image: devopsifyme/sbemu:latest
+    build:
+      context: .
+    environment:
+      - EMULATOR__RABBITMQ__HOST=rabbit
+    ports:
+      - "5671:5671"
+    links: 
+      - rabbit
+    depends_on:
+      rabbit:
+        condition: service_healthy
