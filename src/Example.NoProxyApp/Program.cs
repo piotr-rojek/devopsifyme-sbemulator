@@ -2,7 +2,7 @@
 using Example.NoProxyApp;
 
 var patchSetup = new PatchSetup();
-var testQueueName = "queue/testQueue";
+var testQueueName = "testQueue";
 var client = new BusClient();
 
 Console.WriteLine("Patching...");
