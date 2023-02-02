@@ -1,13 +1,9 @@
 version: "3.9"
-
 services:
   rabbit:
-    image: devopsifyme/sbemu-rabbitmq:latest
-    build: 
-      context: docker/rabbitmq-amqp1
+    image: rabbitmq:3-management
     ports:
       - "15672:15672"
-      - "5672:5672"
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 1s
@@ -20,6 +16,8 @@ services:
       context: .
     environment:
       - EMULATOR__RABBITMQ__HOST=rabbit
+      - EMULATOR__RABBITMQ__USERNAME=guest
+      - EMULATOR__RABBITMQ__PASSWORD=guest
     ports:
       - "5671:5671"
     links: 

@@ -20,13 +20,17 @@ namespace ServiceBusEmulator.RabbitMq
             return (exchangeName, queueName, routingKey);
         }
 
-        public void EnsureExists(IModel channel, string address)
+        public void EnsureExists(IModel channel, string address, bool isSender = false)
         {
             (string? exchange, string? queue, string? routingKey) = GetExachangeAndQueue(address);
 
             channel.ExchangeDeclare(exchange, "fanout", true, false);
-            _ = channel.QueueDeclare(queue, true, false, false);
-            channel.QueueBind(queue, exchange, routingKey, new Dictionary<string, object>());
+
+            if(isSender)
+            {
+                _ = channel.QueueDeclare(queue, true, false, false);
+                channel.QueueBind(queue, exchange, routingKey, new Dictionary<string, object>());
+            }
         }
     }
 }

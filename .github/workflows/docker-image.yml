@@ -37,7 +37,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build the Docker image
-      run: docker compose build
+      run: docker compose build -f docker-compose.yml -f docker-compose.amqp1.yml
 
     - name: Push Docker Image - Emulator
       if: github.ref == 'refs/heads/main'
@@ -85,4 +85,15 @@ jobs:
       with:
         release_name: v${{ steps.gitversion.outputs.SemVer }}
         tag_name: v${{ steps.gitversion.outputs.SemVer }}
+
+    - name: Upload Release Asset
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: sbemu-${{ steps.gitversion.outputs.semVer }}.tar.gz
+        asset_name: sbemu-${{ steps.gitversion.outputs.semVer }}.tar.gz
+        asset_content_type: application/tar+gzip
 

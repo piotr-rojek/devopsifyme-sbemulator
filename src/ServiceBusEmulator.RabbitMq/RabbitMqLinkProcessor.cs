@@ -71,7 +71,7 @@ namespace ServiceBusEmulator.RabbitMq
         private void AttachIncomingLink(AttachContext attachContext, Target target)
         {
             RabbitMQ.Client.IModel channel = _connection.CreateModel();
-            _utilities.EnsureExists(channel, target.Address);
+            _utilities.EnsureExists(channel, target.Address, isSender: true);
 
             if (target.Address.Contains("$management"))
             {
