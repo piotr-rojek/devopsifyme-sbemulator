@@ -37,7 +37,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build the Docker image
-      run: docker compose build -f docker-compose.yml -f docker-compose.amqp1.yml
+      run: docker compose -f docker-compose.yml -f docker-compose.amqp1.yml build
 
     - name: Push Docker Image - Emulator
       if: github.ref == 'refs/heads/main'

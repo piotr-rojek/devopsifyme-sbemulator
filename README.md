@@ -18,13 +18,13 @@ Other backends possible to get implemented:
 
 ## How to run?
 
+See instructions for running from [Docker](docs/install-docker.md), or for running from [Package](docs/install-package.md).
+
 * Add "devopsifyme-local.servicebus.windows.net 127.0.0.1" to /etc/hosts
 * Add /docker/testca/cacert.cer to Trusted Root on your local machine
 * Start RabbitMQ container, or use any other installation you might already have
 * Start ServiceBusEmulator, change configuration if needed
 * Update connection string in your application :)
-
-
 
 ## Supported Features
 
