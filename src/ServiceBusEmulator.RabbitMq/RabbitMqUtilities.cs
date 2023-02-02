@@ -26,10 +26,10 @@ namespace ServiceBusEmulator.RabbitMq
 
             channel.ExchangeDeclare(exchange, "fanout", true, false);
 
-            if(isSender)
+            if(!isSender)
             {
                 _ = channel.QueueDeclare(queue, true, false, false);
-                channel.QueueBind(queue, exchange, routingKey, new Dictionary<string, object>());
+                channel.QueueBind(queue, exchange, routingKey);
             }
         }
     }
