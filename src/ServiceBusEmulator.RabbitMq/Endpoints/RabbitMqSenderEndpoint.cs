@@ -5,7 +5,7 @@ using RabbitMQ.Client;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
-    public class RabbitMqSenderEndpoint : LinkEndpoint
+    public class RabbitMqSenderEndpoint : LinkEndpointWithTargetContext
     {
         private readonly IRabbitMqUtilities _utilities;
         private readonly IRabbitMqMapper _mapper;
@@ -26,7 +26,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected string RoutingKey { get; private set; } = null!;
 
-        public void SetContext(IModel channel, Target target)
+        public override void SetContext(IModel channel, Target target)
         {
             Channel = channel;
             Target = target;

@@ -4,19 +4,20 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using ServiceBusEmulator.Abstractions.Azure;
 using ServiceBusEmulator.RabbitMq.Commands;
+using ServiceBusEmulator.RabbitMq.Links;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     /// <summary>
     /// https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-amqp-request-response
     /// </summary>
-    public class RabbitMqManagementSenderEndpoint : LinkEndpoint
+    public class RabbitMqManagementSenderEndpoint : LinkEndpointWithTargetContext
     {
 
         private readonly IServiceProvider _services;
-        private readonly IReceiverLinkFinder _receiverLinkFinder;
+        private readonly IRabbitMqLinkRegister _receiverLinkFinder;
 
-        public RabbitMqManagementSenderEndpoint(IServiceProvider services, IReceiverLinkFinder receiverLinkFinder)
+        public RabbitMqManagementSenderEndpoint(IServiceProvider services, IRabbitMqLinkRegister receiverLinkFinder)
         {
             _services = services;
             _receiverLinkFinder = receiverLinkFinder;
@@ -25,7 +26,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
         protected IModel Channel { get; private set; } = null!;
         protected Target Target { get; private set; } = null!;
 
-        public void SetContext(IModel channel, Target target)
+        public override void SetContext(IModel channel, Target target)
         {
             Channel = channel;
             Target = target;
@@ -49,7 +50,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
                 response.Properties.CorrelationId = request.Properties.MessageId;
 
                 ListenerLink? replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
-                if(replyLink == null)
+                if (replyLink == null)
                 {
                     messageContext.Complete(new Error(Amqp.ErrorCode.PreconditionFailed));
                     return;

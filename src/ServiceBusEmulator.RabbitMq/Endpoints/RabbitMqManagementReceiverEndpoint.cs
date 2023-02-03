@@ -4,11 +4,11 @@ using RabbitMQ.Client;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
-    public class RabbitMqManagementReceiverEndpoint : LinkEndpoint
+    public class RabbitMqManagementReceiverEndpoint : LinkEndpointWithSourceContext
     {
         public IModel Channel { get; private set; } = null!;
 
-        public void SetContext(IModel channel)
+        public override void SetContext(IModel channel, Source source, ReceiverSettleMode settleMode)
         {
             Channel = channel;
         }

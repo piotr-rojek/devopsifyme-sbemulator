@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using ServiceBusEmulator.RabbitMq.Commands;
 using ServiceBusEmulator.RabbitMq.Endpoints;
+using ServiceBusEmulator.RabbitMq.Links;
 using ServiceBusEmulator.RabbitMq.Options;
 
 namespace ServiceBusEmulator.RabbitMq
@@ -13,7 +14,8 @@ namespace ServiceBusEmulator.RabbitMq
             configure ??= (o) => { };
 
             _ = services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
-            _ = services.AddSingleton(sp => (IReceiverLinkFinder)sp.GetRequiredService<ILinkProcessor>());
+            _ = services.AddSingleton<IRabbitMqLinkRegister, RabbitMqLinkRegister>();
+            _ = services.AddTransient<IRabbitMqLinkEndpointFactory, RabbitMqLinkEndpointFactory>();
 
             _ = services.AddTransient<IRabbitMqUtilities, RabbitMqUtilities>();
             _ = services.AddTransient<IRabbitMqMapper, RabbitMqMapper>();

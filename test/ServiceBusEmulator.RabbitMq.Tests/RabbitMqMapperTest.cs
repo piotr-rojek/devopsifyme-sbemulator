@@ -2,14 +2,11 @@ using Amqp.Framing;
 using Amqp.Types;
 using AutoFixture;
 using RabbitMQ.Client;
-using System.Collections.Generic;
 
 namespace ServiceBusEmulator.RabbitMq.Tests
 {
-    public class RabbitMqMapperTest : Base
+    public class RabbitMqMapperTest : Base<RabbitMqMapper>
     {
-        RabbitMqMapper _sut => Fixture.Freeze<RabbitMqMapper>();
-
         /// <summary>
         /// Assertions that are commented out are currently not supported 
         /// </summary>
@@ -25,10 +22,10 @@ namespace ServiceBusEmulator.RabbitMq.Tests
                 .Create();
 
             var rabbitProperties = Fixture.Create<IBasicProperties>();
-            var rabbitPayload = _sut.MapToRabbit(rabbitProperties, expectedMessage);
+            var rabbitPayload = Sut.MapToRabbit(rabbitProperties, expectedMessage);
 
             var amqpMessage = new Amqp.Message();
-            _sut.MapFromRabbit(amqpMessage, rabbitPayload, rabbitProperties);
+            Sut.MapFromRabbit(amqpMessage, rabbitPayload, rabbitProperties);
 
             Assert.Multiple(
                 () => Assert.Equal(expectedMessage.Body, amqpMessage.Body),

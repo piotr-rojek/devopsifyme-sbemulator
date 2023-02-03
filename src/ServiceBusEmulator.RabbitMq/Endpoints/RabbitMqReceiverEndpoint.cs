@@ -6,7 +6,7 @@ using RabbitMQ.Client.Events;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
-    public class RabbitMqReceiverEndpoint : LinkEndpoint
+    public class RabbitMqReceiverEndpoint : LinkEndpointWithSourceContext
     {
         private readonly IRabbitMqMapper _mapper;
         private readonly IRabbitMqUtilities _utilities;
@@ -24,7 +24,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected ReceiverSettleMode ReceiveSettleMode { get; private set; }
 
-        public void SetContext(IModel channel, Source source, ReceiverSettleMode rcvSettleMode)
+        public override void SetContext(IModel channel, Source source, ReceiverSettleMode rcvSettleMode)
         {
             Channel = channel;
             ReceiveSettleMode = rcvSettleMode;

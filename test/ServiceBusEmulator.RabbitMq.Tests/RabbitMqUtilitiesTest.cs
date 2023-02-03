@@ -4,17 +4,15 @@ using RabbitMQ.Client;
 
 namespace ServiceBusEmulator.RabbitMq.Tests
 {
-    public class RabbitMqUtilitiesTest : Base
+    public class RabbitMqUtilitiesTest : Base<RabbitMqUtilities>
     {
-        RabbitMqUtilities _sut => Fixture.Freeze<RabbitMqUtilities>();
-
         [Theory]
         [InlineData("dummyQueue", "dummyQueue", "", "dummyQueue")]
         [InlineData("topicName", "topicName", "", "topicName")]
         [InlineData("topicName/Subscriptions/subName", "topicName", "", "topicName-sub-subName")]
         public void ThatAddressIsTranslated(string address, string expectedExchange, string expectedRoutingKey, string expectedQueue)
         {
-            (string exchange, string queue, string routingKey) = _sut.GetExachangeAndQueue(address);
+            (string exchange, string queue, string routingKey) = Sut.GetExachangeAndQueue(address);
 
             Assert.Multiple(
                 () => Assert.Equal(expectedQueue, queue),
@@ -31,7 +29,7 @@ namespace ServiceBusEmulator.RabbitMq.Tests
             var address = Fixture.Create<string>();
             IModel channel = Fixture.Create<IModel>();
 
-            _sut.EnsureExists(channel, address, isSender);
+            Sut.EnsureExists(channel, address, isSender);
 
             channel.Received(1).ExchangeDeclare(Arg.Any<string>(), "fanout", true, false);
             channel.Received(isSender ? 0 : 1).QueueDeclare(Arg.Any<string>(), true, false, false);
