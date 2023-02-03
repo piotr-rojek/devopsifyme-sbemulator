@@ -11,7 +11,6 @@ using System.Collections.Concurrent;
 
 namespace ServiceBusEmulator.RabbitMq
 {
-
     internal class RabbitMqLinkProcessor : ILinkProcessor, IReceiverLinkFinder
     {
         private readonly IServiceProvider _services;
@@ -19,11 +18,11 @@ namespace ServiceBusEmulator.RabbitMq
         private readonly RabbitMqBackendOptions _options;
         private readonly ILogger _logger;
         private readonly RabbitMQ.Client.IConnection _connection;
-        private readonly RabbitMqUtilities _utilities;
+        private readonly IRabbitMqUtilities _utilities;
 
         private ConcurrentDictionary<string, ListenerLink> OutgoingLinks { get; } = new ConcurrentDictionary<string, ListenerLink>();
 
-        public RabbitMqLinkProcessor(IServiceProvider services, ISecurityContext securityContext, RabbitMqUtilities utilities, IOptions<RabbitMqBackendOptions> options, ILogger<RabbitMqLinkProcessor> logger)
+        public RabbitMqLinkProcessor(IServiceProvider services, ISecurityContext securityContext, IRabbitMqUtilities utilities, IOptions<RabbitMqBackendOptions> options, ILogger<RabbitMqLinkProcessor> logger)
         {
             _services = services;
             _securityContext = securityContext;

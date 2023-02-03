@@ -8,11 +8,11 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqReceiverEndpoint : LinkEndpoint
     {
-        private readonly RabbitMqMapper _mapper;
-        private readonly RabbitMqUtilities _utilities;
+        private readonly IRabbitMqMapper _mapper;
+        private readonly IRabbitMqUtilities _utilities;
         private readonly Dictionary<Guid, ulong> _deliveryTags = new();
 
-        public RabbitMqReceiverEndpoint(RabbitMqMapper mapper, RabbitMqUtilities utilities)
+        public RabbitMqReceiverEndpoint(IRabbitMqMapper mapper, IRabbitMqUtilities utilities)
         {
             _mapper = mapper;
             _utilities = utilities;

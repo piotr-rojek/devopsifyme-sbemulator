@@ -7,10 +7,10 @@ namespace ServiceBusEmulator.RabbitMq.Commands
 {
     public class PeekMessageCommand : IManagementCommand
     {
-        private readonly RabbitMqUtilities _utilities;
-        private readonly RabbitMqMapper _mapper;
+        private readonly IRabbitMqUtilities _utilities;
+        private readonly IRabbitMqMapper _mapper;
 
-        public PeekMessageCommand(RabbitMqUtilities utilities, RabbitMqMapper mapper)
+        public PeekMessageCommand(IRabbitMqUtilities utilities, IRabbitMqMapper mapper)
         {
             _utilities = utilities;
             _mapper = mapper;
@@ -52,12 +52,12 @@ namespace ServiceBusEmulator.RabbitMq.Commands
                         break;
                     }
 
+                    deliveryTags.Add(rabbitGetResult.DeliveryTag);
+
                     if (fromSequence-- > 1)
                     {
                         continue;
                     }
-
-                    deliveryTags.Add(rabbitGetResult.DeliveryTag);
 
                     yield return GetMessageItem(rabbitGetResult);
 

@@ -7,10 +7,10 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqSenderEndpoint : LinkEndpoint
     {
-        private readonly RabbitMqUtilities _utilities;
-        private readonly RabbitMqMapper _mapper;
+        private readonly IRabbitMqUtilities _utilities;
+        private readonly IRabbitMqMapper _mapper;
 
-        public RabbitMqSenderEndpoint(RabbitMqMapper mapper, RabbitMqUtilities utilities)
+        public RabbitMqSenderEndpoint(IRabbitMqMapper mapper, IRabbitMqUtilities utilities)
         {
             _mapper = mapper;
             _utilities = utilities;

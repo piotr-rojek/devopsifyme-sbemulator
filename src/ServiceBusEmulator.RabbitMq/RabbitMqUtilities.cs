@@ -2,7 +2,7 @@
 
 namespace ServiceBusEmulator.RabbitMq
 {
-    public class RabbitMqUtilities
+    public class RabbitMqUtilities : IRabbitMqUtilities
     {
         public (string exchange, string queue, string routingKey) GetExachangeAndQueue(string address)
         {

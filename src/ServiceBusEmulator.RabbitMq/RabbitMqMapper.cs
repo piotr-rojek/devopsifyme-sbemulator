@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace ServiceBusEmulator.RabbitMq
 {
-    public class RabbitMqMapper
+    public class RabbitMqMapper : IRabbitMqMapper
     {
         public void MapFromRabbit(Message message, ReadOnlyMemory<byte> body, IBasicProperties prop)
         {
@@ -51,7 +51,7 @@ namespace ServiceBusEmulator.RabbitMq
 
             message.Properties = new Properties
             {
-                //AbsoluteExpiryTime
+                AbsoluteExpiryTime = prop.GetHeader<DateTime>("x-sb-absolute-expiry-time"),
                 ContentEncoding = prop.ContentEncoding,
                 ContentType = prop.ContentType,
                 CorrelationId = prop.CorrelationId,
@@ -111,7 +111,7 @@ namespace ServiceBusEmulator.RabbitMq
                 prop.Headers["x-sb-group-seq"] = rProperties.GroupSequence == 0 ? null : rProperties.GroupSequence;
                 prop.Headers["x-sb-group-id"] = rProperties.GroupId;
                 prop.Headers["x-sb-replyto-group-id"] = rProperties.ReplyToGroupId;
-                prop.Headers["x-sb-absolute-expiry-time"] = rProperties.AbsoluteExpiryTime == DateTime.MinValue ? null : rProperties.AbsoluteExpiryTime.ToString();
+                prop.Headers["x-sb-absolute-expiry-time"] = rProperties.AbsoluteExpiryTime.ToString("o", CultureInfo.InvariantCulture);
             }
 
             if (rMessage.ApplicationProperties != null)
