@@ -11,7 +11,7 @@ cd /home/server
 openssl genrsa -out key.pem 2048
 
 # Generate a certificate from our private key.
-openssl req -new -key key.pem -out req.pem -outform PEM -subj /CN=devopsifyme-local.servicebus.windows.net/O=server/ -nodes
+openssl req -new -key key.pem -out req.pem -outform PEM -subj /CN=devopsifyme-local.servicebus.windows.net/O=server/ -config openssl.cnf -addext "subjectAltName = DNS:localhost" -nodes
 
 # Sign the certificate with our CA.
 cd /home/testca

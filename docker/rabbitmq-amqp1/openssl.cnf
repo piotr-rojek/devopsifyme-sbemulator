@@ -13,8 +13,10 @@ default_crl_days = 7
 default_days = 3650
 default_md = sha256
 
+copy_extensions = copy 
 policy = testca_policy
 x509_extensions = certificate_extensions
+req_extensions = req_ext
 
 [ testca_policy ]
 commonName = supplied
@@ -52,3 +54,11 @@ extendedKeyUsage = 1.3.6.1.5.5.7.3.2
 basicConstraints = CA:false
 keyUsage = digitalSignature,keyEncipherment
 extendedKeyUsage = 1.3.6.1.5.5.7.3.1
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1   = test.domain.com
+DNS.2   = other.domain.com
+DNS.3   = www.domain.net

@@ -4,7 +4,7 @@ namespace Example.NoProxyApp
 {
     internal class BusClient
     {
-        private const string ConnectionString = "Endpoint=sb://devopsifyme-local.servicebus.windows.net/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false";
+        private const string ConnectionString = "Endpoint=sb://localhost/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false";
 
         public BusClient()
         {
