@@ -6,6 +6,11 @@ Note that the SharedAccess values must be exactly as specified as this is curren
 
 > "Endpoint=sb://localhost/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false"
 
+Emulator also supports following hostnames:
+* sb://localhost (for local dev)
+* sb://sbemulator (for usage with docker compose, etc.)
+* sb://devopsifyme-local.servicebus.windows.net (for strict SDK requiring specific host, override in /etc/host)
+
 ## Run from DockerHub
 
 ``` powershell
