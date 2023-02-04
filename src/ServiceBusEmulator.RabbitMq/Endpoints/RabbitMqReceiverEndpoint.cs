@@ -8,12 +8,13 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqReceiverEndpoint : LinkEndpointWithSourceContext
     {
+        private readonly IRabbitMqDeliveryTagTracker _deliveryTagTracker;
         private readonly IRabbitMqMapper _mapper;
         private readonly IRabbitMqUtilities _utilities;
-        private readonly Dictionary<Guid, ulong> _deliveryTags = new();
 
-        public RabbitMqReceiverEndpoint(IRabbitMqMapper mapper, IRabbitMqUtilities utilities)
+        public RabbitMqReceiverEndpoint(IRabbitMqDeliveryTagTracker deliveryTagTracker, IRabbitMqMapper mapper, IRabbitMqUtilities utilities)
         {
+            _deliveryTagTracker = deliveryTagTracker;
             _mapper = mapper;
             _utilities = utilities;
         }
@@ -38,7 +39,9 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         public override void OnDisposition(DispositionContext dispositionContext)
         {
-            ulong deliveryTag = _deliveryTags[new Guid(dispositionContext.Message.DeliveryTag)];
+            ulong deliveryTag = _deliveryTagTracker[dispositionContext.Message.DeliveryTag] 
+                ?? throw new Exception("Delivery tag not found");
+
             if (dispositionContext.Settled)
             {
                 dispositionContext.Complete();
@@ -71,20 +74,27 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
             EventingBasicConsumer consumer = new(Channel);
             consumer.Received += (m, e) =>
             {
-                if (--requestedCount <= 0)
-                {
-                    Channel.BasicCancel(e.ConsumerTag);
-                }
-
-                Message message = new();
-                _mapper.MapFromRabbit(message, e.Body, e.BasicProperties);
-
+                var message = GetAmqpMessage(e, ref requestedCount);
                 flowContext.Link.SendMessage(message);
-                _deliveryTags[new Guid(message.DeliveryTag)] = e.DeliveryTag;
+                _deliveryTagTracker[message.DeliveryTag] = e.DeliveryTag;
             };
 
             Channel.BasicQos(0, 1, false);
             _ = Channel.BasicConsume(QueueName, ReceiveSettleMode == ReceiverSettleMode.First, consumer);
+        }
+
+        protected Message? GetAmqpMessage(BasicDeliverEventArgs e, ref int requestedCount)
+        {
+            Interlocked.Decrement(ref requestedCount);
+            if (requestedCount <= 0)
+            {
+                Channel.BasicCancel(e.ConsumerTag);
+            }
+
+            Message message = new();
+            _mapper.MapFromRabbit(message, e.Body, e.BasicProperties);
+
+            return message;
         }
 
         public override void OnMessage(MessageContext messageContext)

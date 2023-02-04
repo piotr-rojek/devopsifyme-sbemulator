@@ -1,6 +1,6 @@
-﻿using Amqp.Framing;
+﻿using Amqp;
+using Amqp.Framing;
 using Amqp.Listener;
-using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using ServiceBusEmulator.Abstractions.Azure;
 using ServiceBusEmulator.RabbitMq.Commands;
@@ -8,18 +8,14 @@ using ServiceBusEmulator.RabbitMq.Links;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
-    /// <summary>
-    /// https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-amqp-request-response
-    /// </summary>
     public class RabbitMqManagementSenderEndpoint : LinkEndpointWithTargetContext
     {
-
-        private readonly IServiceProvider _services;
+        private readonly IRabbitMqManagementCommandFactory _commandFactory;
         private readonly IRabbitMqLinkRegister _receiverLinkFinder;
 
-        public RabbitMqManagementSenderEndpoint(IServiceProvider services, IRabbitMqLinkRegister receiverLinkFinder)
+        public RabbitMqManagementSenderEndpoint(IRabbitMqManagementCommandFactory commandFactory, IRabbitMqLinkRegister receiverLinkFinder)
         {
-            _services = services;
+            _commandFactory = commandFactory;
             _receiverLinkFinder = receiverLinkFinder;
         }
 
@@ -34,45 +30,37 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         public override void OnMessage(MessageContext messageContext)
         {
-            Amqp.Message request = messageContext.Message;
-            string? operation = request.ApplicationProperties?.Map[ManagementConstants.Request.Operation] as string;
-            IManagementCommand handler = GetCommandHandler(operation);
-
-            (Amqp.Message? response, AmqpResponseStatusCode status) = handler.Handle(request, Channel, Target.Address);
-
-            using (response)
+            try
             {
-                response.ApplicationProperties ??= new ApplicationProperties();
-                response.ApplicationProperties[ManagementConstants.Response.StatusCode] = (int)status;
-                response.ApplicationProperties[ManagementConstants.Response.StatusDescription] = status.ToString();
+                Message response = GetResponse(messageContext.Message);
 
-                response.Properties ??= new Properties();
-                response.Properties.CorrelationId = request.Properties.MessageId;
-
-                ListenerLink? replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo);
-                if (replyLink == null)
-                {
-                    messageContext.Complete(new Error(Amqp.ErrorCode.PreconditionFailed));
-                    return;
-                }
+                ListenerLink? replyLink = _receiverLinkFinder.FindByAddress(messageContext.Message.Properties.ReplyTo)
+                    ?? throw new Exception("Cannot find receiver's link");
 
                 replyLink.SendMessage(response);
                 messageContext.Complete();
             }
+            catch
+            {
+                messageContext.Complete(new Error(ErrorCode.PreconditionFailed));
+            }
         }
 
-        private IManagementCommand GetCommandHandler(string? operation)
+        public Message GetResponse(Message request)
         {
-            return operation switch
-            {
-                ManagementConstants.Operations.RenewLockOperation => _services.GetRequiredService<RenewLockCommand>(),
-                ManagementConstants.Operations.PeekMessageOperation => _services.GetRequiredService<PeekMessageCommand>(),
-                ManagementConstants.Operations.RenewSessionLockOperation => _services.GetRequiredService<RenewSessionLockCommand>(),
-                ManagementConstants.Operations.SetSessionStateOperation => _services.GetRequiredService<SetSessionStateCommand>(),
-                ManagementConstants.Operations.GetSessionStateOperation => _services.GetRequiredService<GetSessionStateCommand>(),
-                _ => throw new NotImplementedException($"Operation {operation} not implemented")
-            };
+            string? operation = request.ApplicationProperties?.Map[ManagementConstants.Request.Operation] as string;
 
+            IManagementCommand handler = _commandFactory.GetCommandHandler(operation);
+            (Message? response, AmqpResponseStatusCode status) = handler.Handle(request, Channel, Target.Address);
+
+            response.ApplicationProperties ??= new ApplicationProperties();
+            response.ApplicationProperties[ManagementConstants.Response.StatusCode] = (int)status;
+            response.ApplicationProperties[ManagementConstants.Response.StatusDescription] = status.ToString();
+
+            response.Properties ??= new Properties();
+            response.Properties.CorrelationId = request.Properties.MessageId;
+
+            return response;
         }
 
         public override void OnFlow(FlowContext flowContext)

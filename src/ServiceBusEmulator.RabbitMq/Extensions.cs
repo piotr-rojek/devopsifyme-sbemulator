@@ -16,6 +16,8 @@ namespace ServiceBusEmulator.RabbitMq
             _ = services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
             _ = services.AddSingleton<IRabbitMqLinkRegister, RabbitMqLinkRegister>();
             _ = services.AddTransient<IRabbitMqLinkEndpointFactory, RabbitMqLinkEndpointFactory>();
+            _ = services.AddTransient<IRabbitMqManagementCommandFactory, RabbitMqManagementCommandFactory>();
+            _ = services.AddTransient<IRabbitMqDeliveryTagTracker, RabbitMqDeliveryTagTracker>();
 
             _ = services.AddTransient<IRabbitMqUtilities, RabbitMqUtilities>();
             _ = services.AddTransient<IRabbitMqMapper, RabbitMqMapper>();

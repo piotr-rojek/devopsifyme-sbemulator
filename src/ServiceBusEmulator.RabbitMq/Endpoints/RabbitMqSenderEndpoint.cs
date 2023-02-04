@@ -18,7 +18,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected IModel Channel { get; private set; } = null!;
 
-        public Target Target { get; private set; } = null!;
+        protected Target Target { get; private set; } = null!;
 
         protected string ExchangeName { get; private set; } = null!;
 
