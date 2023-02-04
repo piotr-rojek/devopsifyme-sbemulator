@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace ServiceBusEmulator.RabbitMq.Links
 {
-    public abstract class RabbitMqLinkRegister: IRabbitMqLinkRegister
+    public class RabbitMqLinkRegister: IRabbitMqLinkRegister
     {
         private ConcurrentDictionary<string, ListenerLink> OutgoingLinks { get; } = new ConcurrentDictionary<string, ListenerLink>();
 

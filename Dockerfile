@@ -18,9 +18,9 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
     WORKDIR /app
     COPY . ./
+    RUN dotnet test
 
     WORKDIR /app/src/ServiceBusEmulator.Host
-    RUN dotnet restore
     RUN dotnet publish -c Release -o /app/out
 
 FROM mcr.microsoft.com/dotnet/runtime:7.0
