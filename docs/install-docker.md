@@ -10,7 +10,7 @@ Note that the SharedAccess values must be exactly as specified as this is curren
 
 ``` powershell
 # Bring containers up
-curl https://raw.githubusercontent.com/piotr-rojek/devopsifyme-sbemulator/main/docker-compose.yml?token=GHSAT0AAAAAAB46BQ33G7YMU6VVCKW55WXOY6ZRE2A --output docker-compose.yml
+curl https://raw.githubusercontent.com/piotr-rojek/devopsifyme-sbemulator/main/docker-compose.yml --output docker-compose.yml
 docker compose up --detach --no-build 
 
 # Trust our test certificate

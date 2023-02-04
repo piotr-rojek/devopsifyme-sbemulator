@@ -25,6 +25,8 @@ See instructions for running from [Docker](docs/install-docker.md), or for runni
 * Start ServiceBusEmulator, change configuration if needed
 * Update connection string in your application :)
 
+> "Endpoint=sb://localhost/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false"
+
 ## Supported Features
 
 Current implementation is considered experimental, but from initial tests it works pretty well with standard Azure Functions triggers and outputs. So messages are going through queues, topics and subscriptions. Following features are supported:
