@@ -10,7 +10,7 @@ FROM alpine/openssl:latest AS server-cert
         openssl req -new -key key.pem -out req.pem -outform PEM -nodes \
           -subj /CN=devopsifyme-local.servicebus.windows.net/O=server/ \
           -config openssl.cnf \
-          -addext "subjectAltName = DNS:localhost, DNS:sbemulator" && \
+          -addext "subjectAltName = DNS:localhost, DNS:sbemulator, DNS:emulator" && \
         openssl ca -config openssl.cnf -in req.pem -out cert.pem -notext -batch -extensions server_ca_extensions && \
         openssl pkcs12 -export -out cert.pfx -inkey key.pem -in cert.pem -passout pass:password
 
@@ -18,7 +18,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
     WORKDIR /app
     COPY . ./
-    RUN dotnet test
+    RUN dotnet test --filter FullyQualifiedName\!~IntegrationTests
 
     WORKDIR /app/src/ServiceBusEmulator.Host
     RUN dotnet publish -c Release -o /app/out

@@ -34,6 +34,11 @@ namespace ServiceBusEmulator.Abstractions.Options
         public int Port { get; set; } = 5671;
 
         /// <summary>
+        /// Semicolon separate list of queues or topics to be created upon startup
+        /// </summary>
+        public string? QueuesAndTopics { get; set; }
+
+        /// <summary>
         /// Gets the list of registered topics with subscriptions.
         /// </summary>
         public IList<Topic> Topics { get; } = new List<Topic>();

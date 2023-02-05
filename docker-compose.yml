@@ -15,6 +15,7 @@ services:
     image: devopsifyme/sbemu:latest
     build:
       context: .
+      dockerfile: ./src/ServiceBusEmulator.Host/Dockerfile
     environment:
       - EMULATOR__RABBITMQ__HOST=rabbit
       - EMULATOR__RABBITMQ__USERNAME=guest
