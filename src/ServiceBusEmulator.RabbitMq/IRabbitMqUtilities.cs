@@ -5,6 +5,6 @@ namespace ServiceBusEmulator.RabbitMq
     public interface IRabbitMqUtilities
     {
         void EnsureExists(IModel channel, string address, bool isSender = false);
-        (string exchange, string queue, string routingKey) GetExachangeAndQueue(string address);
+        (string exchange, string queue, string routingKey) GetExachangeAndQueueNames(string address);
     }
 }

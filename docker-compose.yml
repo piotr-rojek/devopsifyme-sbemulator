@@ -11,7 +11,7 @@ services:
       timeout: 30s
       retries: 60
 
-  emulator:
+  sbemulator:
     image: devopsifyme/sbemu:latest
     build:
       context: .

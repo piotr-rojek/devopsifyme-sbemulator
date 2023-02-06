@@ -5,7 +5,7 @@ namespace ServiceBusEmulator.IntegrationTests
 {
     public class Base
     {
-        private const string ConnectionString = "Endpoint=sb://emulator/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false";
+        private const string ConnectionString = "Endpoint=sb://sbemulator/;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;EnableAmqpLinkRedirect=false";
 
         public Base()
         {
