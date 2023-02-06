@@ -14,13 +14,14 @@ namespace ServiceBusEmulator.RabbitMq.Links
         private readonly RabbitMqBackendOptions _options;
         private readonly IRabbitMqLinkEndpointFactory _linkEndpointFactory;
         private readonly IRabbitMqLinkRegister _linkRegister;
+        private readonly IRabbitMqInitializer _initializer;
         private readonly ISecurityContext _securityContext;
         private readonly ILogger _logger;
 
         private RabbitMQ.Client.IConnection? _connection;
         private RabbitMQ.Client.ConnectionFactory _connectionFactory;
 
-        public RabbitMqLinkProcessor(ISecurityContext securityContext, IOptions<RabbitMqBackendOptions> options, ILogger<RabbitMqLinkProcessor> logger, IRabbitMqLinkRegister linkRegister, IRabbitMqLinkEndpointFactory linkEndpointFactory)
+        public RabbitMqLinkProcessor(IRabbitMqInitializer intializer, ISecurityContext securityContext, IOptions<RabbitMqBackendOptions> options, ILogger<RabbitMqLinkProcessor> logger, IRabbitMqLinkRegister linkRegister, IRabbitMqLinkEndpointFactory linkEndpointFactory)
         {
             _options = options.Value;
             _connectionFactory = new()
@@ -30,7 +31,7 @@ namespace ServiceBusEmulator.RabbitMq.Links
                 HostName = _options.Host,
                 Port = _options.Port
             };
-
+            _initializer = intializer;
             _securityContext = securityContext;
             _logger = logger;
             _linkRegister = linkRegister;
@@ -73,6 +74,8 @@ namespace ServiceBusEmulator.RabbitMq.Links
             }
 
             IModel channel = Connection.CreateModel();
+            _initializer.Initialize(channel);
+
             (var linkEndpoint, int initialCredit) = _linkEndpointFactory.CreateEndpoint(channel, attachContext.Attach, attachContext.Link.Role);
 
             _linkRegister.RegisterLink(((Target)attachContext.Attach.Target).Address, attachContext.Link);

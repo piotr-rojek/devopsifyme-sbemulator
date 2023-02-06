@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  emulator:
+    environment:
+      - Emulator__QueuesAndTopics=test-queue;test-topic/Subscriptions/test-sub1;test-topic/Subscriptions/test-sub2
+
+  integration:
+    image: integration-tests:latest
+    build:
+      context: .
+      dockerfile: ./test/ServiceBusEmulator.IntegrationTests/Dockerfile
+    depends_on: 
+      - emulator
