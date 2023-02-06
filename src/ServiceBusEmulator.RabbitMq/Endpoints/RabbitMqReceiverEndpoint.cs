@@ -29,7 +29,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
         {
             Channel = channel;
             ReceiveSettleMode = rcvSettleMode;
-            (_, QueueName, _) = _utilities.GetExachangeAndQueue(source.Address);
+            (_, QueueName, _) = _utilities.GetExachangeAndQueueNames(source.Address);
         }
 
         public override void OnLinkClosed(ListenerLink link, Error error)

@@ -1,6 +1,5 @@
 using AutoFixture;
 using Azure.Messaging.ServiceBus;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace ServiceBusEmulator.IntegrationTests
 {
@@ -62,6 +61,36 @@ namespace ServiceBusEmulator.IntegrationTests
                     () => Assert.Null(nextMessage)
                 );
             }
+        }
+
+        [Fact]
+        public async Task ThatMessageIsDead()
+        {
+            string messageBody = Fixture.Create<string>();
+
+            var sender = Client.CreateSender(Consts.TestQueueName);
+            await sender.SendMessageAsync(new ServiceBusMessage(messageBody));
+
+            var receiver = Client.CreateReceiver(Consts.TestQueueName, new ServiceBusReceiverOptions
+            {
+                ReceiveMode = ServiceBusReceiveMode.PeekLock
+            });
+
+            var receiverDead = Client.CreateReceiver(Consts.TestQueueDlqName, new ServiceBusReceiverOptions
+            {
+                ReceiveMode = ServiceBusReceiveMode.ReceiveAndDelete
+            });
+
+            var receivedMessage = await receiver.ReceiveMessageAsync();
+            await receiver.DeadLetterMessageAsync(receivedMessage);
+            var receivedPeekMessage = await receiver.PeekMessageAsync();
+            var receivedDeadMessage = await receiverDead.ReceiveMessageAsync();
+
+            Assert.Multiple(
+                () => Assert.Equal(messageBody, receivedMessage.Body.ToString()),
+                () => Assert.Equal(messageBody, receivedDeadMessage.Body.ToString()),
+                () => Assert.Null(receivedPeekMessage)
+            );
         }
     }
 }

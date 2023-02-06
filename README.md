@@ -2,7 +2,11 @@
 
 Emulator is really an AMQP 1.0 proxy that translates Azure Service Bus specifics into backend implementation specifics. Backend is an actual queue implementation that runs locally, not in cloud, and handles the messages. The main use case is to help with local development experience and with integration testing where application code cannot change driver easily.
 
-See instructions for running from [Docker](docs/install-docker.md), running from [Package](docs/install-package.md), and [here](docs/examples.md) examples of client implementations.
+See instructions for 
+* [Running from Docker](docs/install-docker.md),
+* [Running from Package](docs/install-package.md),
+* [Configuration](docs/configuration.md),
+* [Examples of client implementations](docs/examples.md).
 
 ![](docs/example-azure-function.gif)
 
@@ -34,11 +38,10 @@ Current implementation is considered experimental, but from initial tests it wor
 * Sending, Receiving, Peeking messages, including metadata
 * Message Annotations: TTL, ID, Header, ApplicationData, and more
 * Queues, Topics and Subscriptions
+* Dead Letter Queues
 * Renew Locks (dummy)
 
 ## Not Supported Features
-
-* Dead Letter (not implemented yet)
 * Message Annotations: partitions, groups, reply-to and more (ignored)
 * Sessions, Transactions
 * Scheduled and Delayed messages

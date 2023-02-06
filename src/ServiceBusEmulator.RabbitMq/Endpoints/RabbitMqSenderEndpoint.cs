@@ -30,7 +30,7 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
         {
             Channel = channel;
             Target = target;
-            (ExchangeName, QueueName, RoutingKey) = _utilities.GetExachangeAndQueue(Target.Address);
+            (ExchangeName, QueueName, RoutingKey) = _utilities.GetExachangeAndQueueNames(Target.Address);
         }
 
         public override void OnLinkClosed(ListenerLink link, Error error)

@@ -7,12 +7,14 @@ namespace ServiceBusEmulator.RabbitMq.Tests
     public class RabbitMqUtilitiesTest : Base<RabbitMqUtilities>
     {
         [Theory]
-        [InlineData("dummyQueue", "dummyQueue", "", "dummyQueue")]
-        [InlineData("topicName", "topicName", "", "topicName")]
-        [InlineData("topicName/Subscriptions/subName", "topicName", "", "topicName-sub-subName")]
+       [InlineData("dummyQueue", "dummyQueue", "dummyQueue", "dummyQueue")]
+        [InlineData("dummyQueue/$deadletterqueue", "dummyQueue", "dummyQueue-dlq", "dummyQueue-dlq")]
+        [InlineData("topicName", "topicName", "topicName", "topicName")]
+        [InlineData("topicName/Subscriptions/subName", "topicName", "topicName", "topicName-sub-subName")]
+        [InlineData("topicName/Subscriptions/subName/$deadletterqueue", "topicName", "topicName-sub-subName-dlq", "topicName-sub-subName-dlq")]
         public void ThatAddressIsTranslated(string address, string expectedExchange, string expectedRoutingKey, string expectedQueue)
         {
-            (string exchange, string queue, string routingKey) = Sut.GetExachangeAndQueue(address);
+            (string exchange, string queue, string routingKey) = Sut.GetExachangeAndQueueNames(address);
 
             Assert.Multiple(
                 () => Assert.Equal(expectedQueue, queue),
@@ -31,9 +33,9 @@ namespace ServiceBusEmulator.RabbitMq.Tests
 
             Sut.EnsureExists(channel, address, isSender);
 
-            channel.Received(1).ExchangeDeclare(Arg.Any<string>(), "fanout", true, false);
-            channel.Received(isSender ? 0 : 1).QueueDeclare(Arg.Any<string>(), true, false, false);
-            channel.Received(isSender ? 0 : 1).QueueBind(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+            channel.Received(1).ExchangeDeclare(Arg.Any<string>(), "topic", true, false);
+            channel.Received(isSender ? 0 : 2).QueueDeclare(Arg.Any<string>(), true, false, false, Arg.Any<IDictionary<string, object>>());
+            channel.Received(isSender ? 0 : 2).QueueBind(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
     }
 }

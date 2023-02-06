@@ -19,7 +19,7 @@ namespace ServiceBusEmulator.RabbitMq.Commands
         public (Message, AmqpResponseStatusCode) Handle(Message request, IModel channel, string address)
         {
 
-            (_, string? queueName, _) = _utilities.GetExachangeAndQueue(address);
+            (_, string? queueName, _) = _utilities.GetExachangeAndQueueNames(address);
 
             Map requestBody = (Map)request.Body;
             int fromSequence = Convert.ToInt32(requestBody[ManagementConstants.Properties.FromSequenceNumber]);
