@@ -44,9 +44,10 @@ jobs:
 
     - name: Run Integration Tests
       run: |
-        docker compose -f docker-compose.yml -f docker-compose.integration.yml up --build integration
+        docker compose -f docker-compose.yml -f docker-compose.amqp1.yml -f docker-compose.integration.yml up --build integration
 
     - name: Build and Push Docker image
+      if: github.ref == 'refs/heads/main'
       run: |
         export TAG=${{ steps.gitversion.outputs.semVer }}
         export TAGMAJOR=${{ steps.gitversion.outputs.major }}

@@ -1,15 +1,16 @@
 version: "3.9"
 services:
   rabbit:
-    image: devopsifyme/sbemu-rabbitmq2:latest
+    image: devopsifyme/sbemu-rabbitmq:latest
     build: 
       context: docker/rabbitmq-amqp1
-      platforms:
-        - "linux/arm64"
-        - "linux/amd64"
+      x-bake:
+        platforms:
+          - "linux/arm64"
+          - "linux/amd64"
       tags:
-        - "devopsifyme/sbemu-rabbitmq2:latest"
-        - "devopsifyme/sbemu-rabbitmq2:${TAG:-0.0.1-local}"
-        - "devopsifyme/sbemu-rabbitmq2:${TAGMAJOR:-0}"
-        - "devopsifyme/sbemu-rabbitmq2:${TAGMAJORMINOR:-0.0}"
-        - "devopsifyme/sbemu-rabbitmq2:${TAGMAJORMINORPATCH:-0.0.1}"
+        - "devopsifyme/sbemu-rabbitmq:latest"
+        - "devopsifyme/sbemu-rabbitmq:${TAG:-0.0.1-local}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJOR:-0}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJORMINOR:-0.0}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJORMINORPATCH:-0.0.1}"

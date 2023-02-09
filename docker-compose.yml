@@ -12,18 +12,18 @@ services:
       retries: 60
 
   sbemulator:
-    image: devopsifyme/sbemu2:latest
+    image: devopsifyme/sbemu:latest
     build:
       x-bake:
         platforms:
           - "linux/arm64"
           - "linux/amd64"
       tags:
-        - "devopsifyme/sbemu2:latest"
-        - "devopsifyme/sbemu2:${TAG:-0.0.1-local}"
-        - "devopsifyme/sbemu2:${TAGMAJOR:-0}"
-        - "devopsifyme/sbemu2:${TAGMAJORMINOR:-0.0}"
-        - "devopsifyme/sbemu2:${TAGMAJORMINORPATCH:-0.0.1}"
+        - "devopsifyme/sbemu:latest"
+        - "devopsifyme/sbemu:${TAG:-0.0.1-local}"
+        - "devopsifyme/sbemu:${TAGMAJOR:-0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINOR:-0.0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINORPATCH:-0.0.1}"
       context: .
       dockerfile: ./src/ServiceBusEmulator.Host/Dockerfile
     environment:
