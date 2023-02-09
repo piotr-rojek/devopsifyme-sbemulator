@@ -30,41 +30,32 @@ jobs:
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0.9.7
     
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: devopsifyme
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build Docker image
-      run: docker compose -f docker-compose.yml -f docker-compose.amqp1.yml build
-
     - name: Run Integration Tests
-      run: docker compose -f docker-compose.yml -f docker-compose.integration.yml up integration
+      run: |
+        docker compose -f docker-compose.yml -f docker-compose.integration.yml up \
+          --build --exit-code-from integration
 
-    - name: Push Docker Image - Emulator
+    - name: Build and Push Docker image
       if: github.ref == 'refs/heads/main'
       run: |
-        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.semVer }} 
-        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.major }} 
-        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
-        docker tag devopsifyme/sbemu:latest devopsifyme/sbemu:${{ steps.gitversion.outputs.majorMinorPatch }}
-        docker push devopsifyme/sbemu:latest
-        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.major }} 
-        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
-        docker push devopsifyme/sbemu:${{ steps.gitversion.outputs.majorMinorPatch  }}
+        export TAG=${{ steps.gitversion.outputs.semVer }}
+        export TAGMAJOR=${{ steps.gitversion.outputs.major }}
+        export TAGMAJORMINOR=${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }}
+        export TAGMAJORMINORPATCH=${{ steps.gitversion.outputs.majorMinorPatch }}
 
-    - name: Push Docker Image - RabbitMQ
-      if: github.ref == 'refs/heads/main'
-      run: |
-        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.semVer }} 
-        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }} 
-        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
-        docker tag devopsifyme/sbemu-rabbitmq:latest devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.majorMinorPatch }}
-        docker push devopsifyme/sbemu-rabbitmq:latest
-        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }} 
-        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
-        docker push devopsifyme/sbemu-rabbitmq:${{ steps.gitversion.outputs.majorMinorPatch  }}
+        docker buildx bake -f docker-compose.yml -f docker-compose.amqp1.yml --push
 
     - name: Archive build output
       run: |

@@ -4,3 +4,13 @@ services:
     image: devopsifyme/sbemu-rabbitmq:latest
     build: 
       context: docker/rabbitmq-amqp1
+      x-bake:
+        platforms:
+          - "linux/arm64"
+          - "linux/amd64"
+      tags:
+        - "devopsifyme/sbemu-rabbitmq:latest"
+        - "devopsifyme/sbemu-rabbitmq:${TAG:-0.0.1-local}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJOR:-0}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJORMINOR:-0.0}"
+        - "devopsifyme/sbemu-rabbitmq:${TAGMAJORMINORPATCH:-0.0.1}"
