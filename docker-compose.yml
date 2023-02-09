@@ -14,6 +14,15 @@ services:
   sbemulator:
     image: devopsifyme/sbemu:latest
     build:
+      platforms:
+        - "linux/arm64"
+        - "linux/amd64"
+      tags:
+        - "devopsifyme/sbemu:latest"
+        - "devopsifyme/sbemu:${TAG:-0.0.1-local}"
+        - "devopsifyme/sbemu:${TAGMAJOR:-0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINOR:-0.0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINORPATCH:-0.0.1}"
       context: .
       dockerfile: ./src/ServiceBusEmulator.Host/Dockerfile
     environment:

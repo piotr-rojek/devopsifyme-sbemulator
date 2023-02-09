@@ -4,3 +4,12 @@ services:
     image: devopsifyme/sbemu-rabbitmq:latest
     build: 
       context: docker/rabbitmq-amqp1
+      platforms:
+        - "linux/arm64"
+        - "linux/amd64"
+      tags:
+        - "devopsifyme/sbemu:latest"
+        - "devopsifyme/sbemu:${TAG:-0.0.1-local}"
+        - "devopsifyme/sbemu:${TAGMAJOR:-0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINOR:-0.0}"
+        - "devopsifyme/sbemu:${TAGMAJORMINORPATCH:-0.0.1}"

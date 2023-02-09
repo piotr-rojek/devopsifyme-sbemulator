@@ -14,7 +14,7 @@ FROM alpine/openssl:latest AS server-cert
         openssl ca -config openssl.cnf -in req.pem -out cert.pem -notext -batch -extensions server_ca_extensions && \
         openssl pkcs12 -export -out cert.pfx -inkey key.pem -in cert.pem -passout pass:password
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+FROM --platform=amd64 mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
     WORKDIR /app
     COPY . ./
