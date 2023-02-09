@@ -43,6 +43,7 @@ jobs:
         export TAGMAJORMINOR=${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }} 
         export TAGMAJORMINORPATH=${{ steps.gitversion.outputs.majorMinorPatch }}
 
+        docker buildx create --use
         docker compose -f docker-compose.yml -f docker-compose.amqp1.yml build
 
     - name: Run Integration Tests
