@@ -14,9 +14,10 @@ services:
   sbemulator:
     image: devopsifyme/sbemu2:latest
     build:
-      platforms:
-        - "linux/arm64"
-        - "linux/amd64"
+      x-bake:
+        platforms:
+          - "linux/arm64"
+          - "linux/amd64"
       tags:
         - "devopsifyme/sbemu2:latest"
         - "devopsifyme/sbemu2:${TAG:-0.0.1-local}"
