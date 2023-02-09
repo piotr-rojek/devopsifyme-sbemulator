@@ -21,6 +21,11 @@ jobs:
         ref: ${{ github.head_ref }}   # checkout the correct branch name
         fetch-depth: 0                # fetch the whole repo history
     
+    - name: Run Integration Tests
+      run: |
+        docker compose -f docker-compose.yml -f docker-compose.integration.yml up \
+          --build --exit-code-from integration
+
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.7
       with:
@@ -41,11 +46,6 @@ jobs:
       with:
         username: devopsifyme
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Run Integration Tests
-      run: |
-        docker compose -f docker-compose.yml -f docker-compose.integration.yml up \
-          --build --exit-code-from integration
 
     - name: Build and Push Docker image
       if: github.ref == 'refs/heads/main'
