@@ -49,10 +49,10 @@ jobs:
       run: docker compose -f docker-compose.yml -f docker-compose.integration.yml up integration
 
     - name: Push Docker Images
-      if: github.ref == 'refs/heads/main'
+      # if: github.ref == 'refs/heads/main'
       run: |
         docker compose push sbemulator
-        docker compose push rabbit
+        # docker compose push rabbit
 
     - name: Archive build output
       run: |
