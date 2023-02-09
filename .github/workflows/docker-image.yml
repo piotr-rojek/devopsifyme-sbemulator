@@ -52,8 +52,8 @@ jobs:
     - name: Push Docker Images
       # if: github.ref == 'refs/heads/main'
       run: |
-        docker compose push sbemulator
-        # docker compose push rabbit
+        docker push --all-tags devopsifyme/sbemu2
+        # docker push --all-tags devopsifyme/sbemu-rabbitmq
 
     - name: Archive build output
       run: |
