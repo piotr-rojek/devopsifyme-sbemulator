@@ -1,4 +1,4 @@
-FROM alpine/openssl:latest AS server-cert
+FROM --platform=amd64 alpine/openssl:latest AS server-cert
 
     WORKDIR /home/testca
     COPY ./docker/rabbitmq-amqp1/testca .
