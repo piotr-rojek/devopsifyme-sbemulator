@@ -2,35 +2,24 @@
 using Amqp.Framing;
 using Amqp.Listener;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using ServiceBusEmulator.Abstractions.Security;
-using ServiceBusEmulator.RabbitMq.Options;
 
 namespace ServiceBusEmulator.RabbitMq.Links
 {
     public class RabbitMqLinkProcessor : ILinkProcessor
     {
-        private readonly RabbitMqBackendOptions _options;
         private readonly IRabbitMqLinkEndpointFactory _linkEndpointFactory;
         private readonly IRabbitMqLinkRegister _linkRegister;
+        private readonly IRabbitMqChannelFactory _channelFactory;
         private readonly IRabbitMqInitializer _initializer;
         private readonly ISecurityContext _securityContext;
         private readonly ILogger _logger;
 
-        private RabbitMQ.Client.IConnection? _connection;
-        private RabbitMQ.Client.ConnectionFactory _connectionFactory;
 
-        public RabbitMqLinkProcessor(IRabbitMqInitializer intializer, ISecurityContext securityContext, IOptions<RabbitMqBackendOptions> options, ILogger<RabbitMqLinkProcessor> logger, IRabbitMqLinkRegister linkRegister, IRabbitMqLinkEndpointFactory linkEndpointFactory)
+        public RabbitMqLinkProcessor(IRabbitMqChannelFactory channelFactory,IRabbitMqInitializer intializer, ISecurityContext securityContext, ILogger<RabbitMqLinkProcessor> logger, IRabbitMqLinkRegister linkRegister, IRabbitMqLinkEndpointFactory linkEndpointFactory)
         {
-            _options = options.Value;
-            _connectionFactory = new()
-            {
-                Password = _options.Password,
-                UserName = _options.Username,
-                HostName = _options.Host,
-                Port = _options.Port
-            };
+            _channelFactory = channelFactory;
             _initializer = intializer;
             _securityContext = securityContext;
             _logger = logger;
@@ -38,24 +27,6 @@ namespace ServiceBusEmulator.RabbitMq.Links
             _linkEndpointFactory = linkEndpointFactory;
         }
 
-        protected RabbitMQ.Client.IConnection Connection
-        {
-            get
-            {
-                if (!(_connection?.IsOpen ?? false))
-                {
-                    lock (_connectionFactory)
-                    {
-                        if (!(_connection?.IsOpen ?? false))
-                        {
-                            _connection = _connectionFactory.CreateConnection();
-                        }
-                    }
-                }
-
-                return _connection;
-            }
-        }
 
         public void Process(AttachContext attachContext)
         {
@@ -73,7 +44,7 @@ namespace ServiceBusEmulator.RabbitMq.Links
                 return;
             }
 
-            IModel channel = Connection.CreateModel();
+            IModel channel = _channelFactory.CreateChannel();
             _initializer.Initialize(channel);
 
             (var linkEndpoint, int initialCredit) = _linkEndpointFactory.CreateEndpoint(channel, attachContext.Attach, attachContext.Link.Role);

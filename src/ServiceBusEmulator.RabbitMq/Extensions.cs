@@ -15,6 +15,7 @@ namespace ServiceBusEmulator.RabbitMq
 
             _ = services.AddSingleton<ILinkProcessor, RabbitMqLinkProcessor>();
             _ = services.AddSingleton<IRabbitMqLinkRegister, RabbitMqLinkRegister>();
+            _ = services.AddSingleton<IRabbitMqChannelFactory, RabbitMqChannelFactory>();
             _ = services.AddTransient<IRabbitMqLinkEndpointFactory, RabbitMqLinkEndpointFactory>();
             _ = services.AddTransient<IRabbitMqManagementCommandFactory, RabbitMqManagementCommandFactory>();
             _ = services.AddTransient<IRabbitMqDeliveryTagTracker, RabbitMqDeliveryTagTracker>();
@@ -34,6 +35,8 @@ namespace ServiceBusEmulator.RabbitMq
             _ = services.AddTransient<GetSessionStateCommand>();
 
             _ = services.AddOptions<RabbitMqBackendOptions>().Configure(configure).BindConfiguration("Emulator:RabbitMq");
+
+            _ = services.AddHealthChecks().AddCheck<RabbitMqHealthCheck>("rabbitmq");
 
             return services;
         }
