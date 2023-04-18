@@ -56,7 +56,7 @@ namespace ServiceBusEmulator.RabbitMq.Tests
                 //() => Assert.Equal(expectedMessage.Footer.FromDescribedMap(), amqpMessage.Footer.FromDescribedMap()),
                 () => Assert.Equal(expectedMessage.MessageAnnotations.FromDescribedMap(), amqpMessage.MessageAnnotations.FromDescribedMap()),
 
-                () => Assert.NotNull(amqpMessage.MessageAnnotations[new Symbol("x-opt-locked-until")])
+                () => Assert.Equal((DateTime)amqpMessage.MessageAnnotations[new Symbol("x-opt-locked-until")], DateTime.UtcNow, TimeSpan.FromDays(2))
             );
         }
 

@@ -48,7 +48,7 @@ namespace ServiceBusEmulator.RabbitMq
             {
                 message.MessageAnnotations[new Symbol(key)] = value;
             }
-            message.MessageAnnotations[new Symbol("x-opt-locked-until")] = DateTime.UtcNow.AddDays(1).ToString("o", CultureInfo.InvariantCulture);
+            message.MessageAnnotations[new Symbol("x-opt-locked-until")] = DateTime.UtcNow.AddDays(1);
 
             message.Properties = new Properties
             {
