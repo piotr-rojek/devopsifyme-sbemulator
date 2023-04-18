@@ -1,4 +1,5 @@
 ﻿using Amqp;
+using Amqp.Framing;
 using Amqp.Listener;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -87,6 +88,12 @@ namespace ServiceBusEmulator
             int port = Settings.Port;
             Address address = new($"amqps://localhost:{port}");
             ContainerHost host = new(new[] { address }, Settings.ServerCertificate);
+            host.AddressResolver += (c, attach) =>
+            {
+                // required for node.js SDK $cbs authentication
+                ((Target)attach.Target).Address ??= attach.LinkName;
+                return null;
+            };
 
             host.Listeners[0].HandlerFactory = _ => AzureHandler.Instance;
             host.Listeners[0].SASL.EnableAzureSaslMechanism();

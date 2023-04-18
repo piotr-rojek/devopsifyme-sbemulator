@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: write
+  
+env:
+  DOCKERHUBPUSH: ''
 
 jobs:
 
@@ -48,15 +51,18 @@ jobs:
         username: devopsifyme
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Docker image
+    - name: Enable Docker Hub Push
       if: github.ref == 'refs/heads/main'
+      run: echo 'DOCKERHUBPUSH=--push' >> "$GITHUB_ENV"
+
+    - name: Build and Push Docker image
       run: |
         export TAG=${{ steps.gitversion.outputs.semVer }}
         export TAGMAJOR=${{ steps.gitversion.outputs.major }}
         export TAGMAJORMINOR=${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }}
         export TAGMAJORMINORPATCH=${{ steps.gitversion.outputs.majorMinorPatch }}
 
-        docker buildx bake -f docker-compose.yml -f docker-compose.amqp1.yml --push
+        docker buildx bake -f docker-compose.yml -f docker-compose.amqp1.yml ${{ env.DOCKERHUBPUSH }}
 
     - name: Archive build output
       run: |

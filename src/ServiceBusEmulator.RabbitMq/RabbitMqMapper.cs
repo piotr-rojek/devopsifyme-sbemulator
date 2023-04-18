@@ -48,6 +48,7 @@ namespace ServiceBusEmulator.RabbitMq
             {
                 message.MessageAnnotations[new Symbol(key)] = value;
             }
+            message.MessageAnnotations[new Symbol("x-opt-locked-until")] = DateTime.UtcNow.AddDays(1);
 
             message.Properties = new Properties
             {
@@ -100,7 +101,7 @@ namespace ServiceBusEmulator.RabbitMq
                 DateTime creationTime = rProperties.CreationTime == DateTime.MinValue ? DateTime.UtcNow : rProperties.CreationTime;
 
                 prop.ReplyTo = rProperties.ReplyTo;
-                prop.MessageId = rProperties.MessageId;
+                prop.MessageId = rProperties.MessageId ?? Guid.NewGuid().ToString();
                 prop.CorrelationId = rProperties.CorrelationId;
                 prop.ContentType = rProperties.ContentType;
                 prop.ContentEncoding = rProperties.ContentEncoding;

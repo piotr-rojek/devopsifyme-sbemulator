@@ -35,6 +35,8 @@ namespace ServiceBusEmulator.RabbitMq.Tests.Links
                     delivery.State = deliveryState ?? new Accepted();
                     delivery.Tag = fixture.CreateMany<byte>(16).ToArray();
 
+                    deliverySetter.PropertyType.GetField("Buffer").SetValue(delivery, new ByteBuffer(1, true));
+
                     deliverySetter.SetValue(x, delivery);
                 })
             );
