@@ -54,7 +54,9 @@ namespace ServiceBusEmulator.RabbitMq.Tests
                 () => Assert.Equal(expectedMessage.ApplicationProperties.FromDescribedMap(), amqpMessage.ApplicationProperties.FromDescribedMap()),
                 //() => Assert.Equal(expectedMessage.DeliveryAnnotations.FromDescribedMap(), amqpMessage.DeliveryAnnotations.FromDescribedMap()),
                 //() => Assert.Equal(expectedMessage.Footer.FromDescribedMap(), amqpMessage.Footer.FromDescribedMap()),
-                () => Assert.Equal(expectedMessage.MessageAnnotations.FromDescribedMap(), amqpMessage.MessageAnnotations.FromDescribedMap())
+                () => Assert.Equal(expectedMessage.MessageAnnotations.FromDescribedMap(), amqpMessage.MessageAnnotations.FromDescribedMap()),
+
+                () => Assert.NotNull(amqpMessage.MessageAnnotations[new Symbol("x-opt-locked-until")])
             );
         }
 
