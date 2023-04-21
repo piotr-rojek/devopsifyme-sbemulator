@@ -2,6 +2,7 @@
 using Amqp.Framing;
 using Amqp.Listener;
 using RabbitMQ.Client;
+using ServiceBusEmulator.Abstractions.Domain;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
@@ -56,6 +57,17 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected void OnMessage(Message message)
         {
+            if(message is BatchMessage batchMessage && batchMessage.InnerMessages.Any())
+            {
+                foreach (var innerMessage in batchMessage.InnerMessages)
+                {
+                    OnMessage(innerMessage);
+                }
+
+                // do not publish batch wrapper messages
+                return;
+            }
+
             IBasicProperties prop = Channel.CreateBasicProperties();
             byte[] body = _mapper.MapToRabbit(prop, message);
 

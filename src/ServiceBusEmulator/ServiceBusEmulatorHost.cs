@@ -87,13 +87,7 @@ namespace ServiceBusEmulator
         {
             int port = Settings.Port;
             Address address = new($"amqps://localhost:{port}");
-            ContainerHost host = new(new[] { address }, Settings.ServerCertificate);
-            host.AddressResolver += (c, attach) =>
-            {
-                // required for node.js SDK $cbs authentication
-                ((Target)attach.Target).Address ??= attach.LinkName;
-                return null;
-            };
+            ServiceBusEmulatorContainerHost host = new(new[] { address }, Settings.ServerCertificate);
 
             host.Listeners[0].HandlerFactory = _ => AzureHandler.Instance;
             host.Listeners[0].SASL.EnableAzureSaslMechanism();
