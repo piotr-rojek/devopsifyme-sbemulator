@@ -59,6 +59,9 @@ namespace ServiceBusEmulator.Abstractions.Domain
 
                 if (restrictedDescribed.Descriptor.Code == DataCode && restrictedDescribed is Data dataBody)
                 {
+                    int position = dataBody.Buffer.Offset;
+                    int length = dataBody.Buffer.Length;
+
                     try
                     {
                         message.InnerMessages.Add(Decode(dataBody.Buffer));
@@ -66,6 +69,10 @@ namespace ServiceBusEmulator.Abstractions.Domain
                     catch (AmqpException)
                     {
                         // apparently not a batch :O
+                    }
+                    finally
+                    {
+                        dataBody.Buffer.AdjustPosition(position, length);
                     }
                 }
 
