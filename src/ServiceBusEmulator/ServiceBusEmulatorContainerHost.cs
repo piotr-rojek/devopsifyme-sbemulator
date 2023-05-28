@@ -18,12 +18,5 @@ namespace ServiceBusEmulator
                 return null;
             };
         }
-
-        Message IContainer.CreateMessage(ByteBuffer buffer)
-        {
-            // required for batched messages support
-            // ideally we would have access to Transfer here to know if this is a batched message or not..
-            return BatchMessage.DecodeWithBatchSupport(buffer);
-        }
     }
 }

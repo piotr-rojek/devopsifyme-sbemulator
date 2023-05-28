@@ -2,12 +2,13 @@
 using Amqp.Framing;
 using Amqp.Listener;
 using RabbitMQ.Client;
-using ServiceBusEmulator.Abstractions.Domain;
 
 namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqSenderEndpoint : LinkEndpointWithTargetContext
     {
+        private const uint BatchMessageFormat = 0x80013700;
+
         private readonly IRabbitMqUtilities _utilities;
         private readonly IRabbitMqMapper _mapper;
 
@@ -57,10 +58,11 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected void OnMessage(Message message)
         {
-            if(message is BatchMessage batchMessage && batchMessage.InnerMessages.Any())
+            if(message.Format == BatchMessageFormat)
             {
-                foreach (var innerMessage in batchMessage.InnerMessages)
+                foreach (var data in (Data[])message.Body)
                 {
+                    var innerMessage = Message.Decode(data.Buffer);
                     OnMessage(innerMessage);
                 }
 
