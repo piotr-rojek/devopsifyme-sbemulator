@@ -35,7 +35,7 @@ See instructions for running from [Docker](docs/install-docker.md), or for runni
 
 Current implementation is considered experimental, but from initial tests it works pretty well with standard Azure Functions triggers and outputs. So messages are going through queues, topics and subscriptions. Following features are supported:
 
-* Sending, Receiving, Peeking messages, including metadata
+* Sending, Receiving, Batching, Peeking messages, including metadata
 * Message Annotations: TTL, ID, Header, ApplicationData, and more
 * Queues, Topics and Subscriptions
 * Dead Letter Queues

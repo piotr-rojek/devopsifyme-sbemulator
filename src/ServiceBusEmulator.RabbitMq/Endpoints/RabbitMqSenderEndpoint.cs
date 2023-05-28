@@ -7,6 +7,8 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 {
     public class RabbitMqSenderEndpoint : LinkEndpointWithTargetContext
     {
+        private const uint BatchMessageFormat = 0x80013700;
+
         private readonly IRabbitMqUtilities _utilities;
         private readonly IRabbitMqMapper _mapper;
 
@@ -56,6 +58,18 @@ namespace ServiceBusEmulator.RabbitMq.Endpoints
 
         protected void OnMessage(Message message)
         {
+            if(message.Format == BatchMessageFormat)
+            {
+                foreach (var data in (Data[])message.Body)
+                {
+                    var innerMessage = Message.Decode(data.Buffer);
+                    OnMessage(innerMessage);
+                }
+
+                // do not publish batch wrapper messages
+                return;
+            }
+
             IBasicProperties prop = Channel.CreateBasicProperties();
             byte[] body = _mapper.MapToRabbit(prop, message);
 
