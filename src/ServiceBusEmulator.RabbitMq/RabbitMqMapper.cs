@@ -117,17 +117,17 @@ namespace ServiceBusEmulator.RabbitMq
 
             if (rMessage.ApplicationProperties != null)
             {
-                foreach (KeyValuePair<object, object> p in rMessage.ApplicationProperties.Map)
+                foreach (KeyValuePair<object, object?> p in rMessage.ApplicationProperties.Map)
                 {
-                    prop.Headers[$"x-sb-app-{p.Key}"] = p.Value.ToString();
+                    prop.Headers[$"x-sb-app-{p.Key}"] = p.Value?.ToString();
                 }
             }
 
             if (rMessage.MessageAnnotations != null)
             {
-                foreach (KeyValuePair<object, object> p in rMessage.MessageAnnotations.Map)
+                foreach (KeyValuePair<object, object?> p in rMessage.MessageAnnotations.Map)
                 {
-                    prop.Headers[$"x-sb-annotation-{p.Key}"] = p.Value.ToString();
+                    prop.Headers[$"x-sb-annotation-{p.Key}"] = p.Value?.ToString();
                 }
             }
 

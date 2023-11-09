@@ -7,20 +7,24 @@ namespace ServiceBusEmulator.RabbitMq.Tests
 {
     public class RabbitMqMapperTest : Base<RabbitMqMapper>
     {
-        /// <summary>
-        /// Assertions that are commented out are currently not supported 
-        /// </summary>
-        [Fact]
-        public void ThatMappingIsSimetrical()
+        protected Amqp.Message ProvideFixtureMessage()
         {
-            var expectedMessage = Fixture.Build<Amqp.Message>()
+            return Fixture.Build<Amqp.Message>()
                 .With(x => x.BodySection, Fixture.Build<Data>().With(x => x.Buffer, new Amqp.ByteBuffer(Fixture.CreateMany<byte>(255).ToArray(), 0, 255, 255)).Create())
                 .With(x => x.ApplicationProperties, Fixture.CreateDescribedMap<ApplicationProperties, string, string>())
                 .With(x => x.DeliveryAnnotations, Fixture.CreateDescribedMap<DeliveryAnnotations, Symbol, string>())
                 .With(x => x.Footer, Fixture.CreateDescribedMap<Footer, Symbol, string>())
                 .With(x => x.MessageAnnotations, Fixture.CreateDescribedMap<MessageAnnotations, Symbol, string>())
                 .Create();
+        }
 
+        /// <summary>
+        /// Assertions that are commented out are currently not supported 
+        /// </summary>
+        [Fact]
+        public void ThatMappingIsSimetrical()
+        {
+            var expectedMessage = ProvideFixtureMessage();
             var rabbitProperties = Fixture.Create<IBasicProperties>();
             var rabbitPayload = Sut.MapToRabbit(rabbitProperties, expectedMessage);
 
@@ -60,6 +64,21 @@ namespace ServiceBusEmulator.RabbitMq.Tests
             );
         }
 
-        
+        /// <summary>
+        /// Some use cases can introduce null property values
+        /// </summary>
+        [Fact]
+        public void ThatMappedMessagesCanHaveNullProperties()
+        {
+            var message = ProvideFixtureMessage();
+            Assert.True(message.ApplicationProperties.Map.TryAdd("null-application-property", null));
+            Assert.True(message.MessageAnnotations.Map.TryAdd("null-message-annotation", null));
+
+            var rabbitProperties = Fixture.Create<IBasicProperties>();
+            var rabbitPayload = Sut.MapToRabbit(rabbitProperties, message); // [Diagnostic-Id, ]
+
+            Assert.False(rabbitProperties.Headers.TryGetValue("x-sb-app-null-application-property", out var nullProperty));
+            Assert.False(rabbitProperties.Headers.TryGetValue("x-sb-annotation-null-message-annotation", out var nullAnnotation));
+        }
     }
 }
