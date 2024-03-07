@@ -4,6 +4,7 @@ using Amqp.Listener;
 using Microsoft.Extensions.Logging;
 using ServiceBusEmulator.Abstractions.Security;
 using System;
+using System.Globalization;
 
 namespace ServiceBusEmulator.Security
 {
@@ -59,7 +60,8 @@ namespace ServiceBusEmulator.Security
 
         private static Message GetResponseMessage(int responseCode, RequestContext requestContext)
         {
-            string messageId = Convert.ToString(requestContext.Message.Properties.GetMessageId());
+            string messageId = Convert.ToString(requestContext.Message.Properties.GetMessageId(), 
+                CultureInfo.InvariantCulture);
             requestContext.Message.Properties.SetMessageId(messageId);
             return new Message
             {
