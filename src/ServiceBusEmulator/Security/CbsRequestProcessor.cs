@@ -59,11 +59,14 @@ namespace ServiceBusEmulator.Security
 
         private static Message GetResponseMessage(int responseCode, RequestContext requestContext)
         {
+            string messageId = requestContext.Message.Properties.GetMessageId().ToString();
+            requestContext.Message.Properties.SetMessageId(messageId);
             return new Message
             {
                 Properties = new Properties
                 {
-                    CorrelationId = requestContext.Message.Properties.MessageId
+                    CorrelationId = messageId,
+                    MessageId = messageId
                 },
                 ApplicationProperties = new ApplicationProperties
                 {
